@@ -3,32 +3,24 @@ import numpy as np
 import pandas as pd
 from scipy import signal
 
+### Data model for acceleration data.
 class Data():
-    def __init__(self, filename, path):
+    def __init__(self, filename, ax, ay, az):
         
         self.filename = filename
-        self.path = path
+        self.ax = ax
+        self.ay = ay
+        self.az = az
         
-        try:
-            data = pd.read_csv(path + filename + '.csv', header=0, sep=';')
-            accelerations = data.loc[:, ['X', 'Y', 'Z']].values
-        except:
-            data = pd.read_csv(path + filename + '.csv', header=0)
-            accelerations = data.loc[:, ['X', 'Y', 'Z']].values  
+        self.pressure = None
         
-        self.ax = accelerations[:,0]
-        self.ay = accelerations[:,1]
-        self.az = accelerations[:,2]
-        self.pressure = data.loc[:, ['Pressure']].values 
-        
-        
+    ### Filter acceleration signals using a Butterworth filter.   
     def filter_accelerations(self, N, Wn):
         b, a = signal.butter(N, Wn)
         
         self.ax = signal.filtfilt(b, a, self.ax)
         self.ay = signal.filtfilt(b, a, self.ay)
         self.az = signal.filtfilt(b, a, self.az)
-        
         
         
         

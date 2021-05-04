@@ -1,22 +1,27 @@
+import csv
 import copy
 import numpy as np
 import event as Event
 import more_itertools as mit
 
 class EventFinder():
-    def __init__(self, sigma, w):
+    def __init__(self, sigma, w, mode = "rest"):
         
         self.sigma = sigma #Beyond sigma*stdev we consider that we have an event or a potential behavior.
         self.w = w #Size of the window that we will use to find overlapping events.
+        self.mode = mode
 
         
-    def FindEvents(self, filename, a, axis):
-        mean = np.mean(a)
+    def FindEvents(self, filename, a, axis, mode):
         stdev = np.std(a)
     
-        index_events = np.where((a >= mean + self.sigma*stdev) | (a <= mean - self.sigma*stdev))
-        index_events = np.array(index_events)[0]
+        if self.mode == "mean":
+            mean = np.mean(a)
+            index_events = np.where((a >= mean + self.sigma*stdev) | (a <= mean - self.sigma*stdev))
+        if self.mode == "rest":
+            index_events = np.where((a >= self.sigma*stdev) | (a <= -self.sigma*stdev))
         
+        index_events = np.array(index_events)[0]
         raw_events = np.array([tuple(group) for group in mit.consecutive_groups(sorted(index_events))])
 
         events = []
@@ -194,7 +199,7 @@ class EventFinder():
     
     
     ### Removes all the events of size smaller than threshold.
-    def RemoveShortEvents(events, threshold):
+    def RemoveShortEvents(self, events, threshold):
         new_events = []
         for event in events:
             length = event.end - event.start
@@ -206,20 +211,35 @@ class EventFinder():
     
     ### Test to check that every event has the right axis label assigned.
     def TestCheckTagCoherence(self, events, data):
-        mean_ax = np.mean(data.ax)
-        stdev_ax = np.std(data.ax)
-        plus_ax = mean_ax + self.sigma*stdev_ax
-        minus_ax = mean_ax - self.sigma*stdev_ax
         
-        mean_ay = np.mean(data.ay)
-        stdev_ay = np.std(data.ay)
-        plus_ay = mean_ay + self.sigma*stdev_ay
-        minus_ay = mean_ay - self.sigma*stdev_ay
+        if self.mode == "mean":
+            mean_ax = np.mean(data.ax)
+            stdev_ax = np.std(data.ax)
+            plus_ax = mean_ax + self.sigma*stdev_ax
+            minus_ax = mean_ax - self.sigma*stdev_ax
+            
+            mean_ay = np.mean(data.ay)
+            stdev_ay = np.std(data.ay)
+            plus_ay = mean_ay + self.sigma*stdev_ay
+            minus_ay = mean_ay - self.sigma*stdev_ay
+            
+            mean_az = np.mean(data.az)
+            stdev_az = np.std(data.az)
+            plus_az = mean_az + self.sigma*stdev_az
+            minus_az = mean_az - self.sigma*stdev_az
         
-        mean_az = np.mean(data.az)
-        stdev_az = np.std(data.az)
-        plus_az = mean_az + self.sigma*stdev_az
-        minus_az = mean_az - self.sigma*stdev_az
+        if self.mode == "rest":
+            stdev_ax = np.std(data.ax)
+            plus_ax = 0 + self.sigma*stdev_ax
+            minus_ax = 0 - self.sigma*stdev_ax
+            
+            stdev_ay = np.std(data.ay)
+            plus_ay = 0 + self.sigma*stdev_ay
+            minus_ay = 0 - self.sigma*stdev_ay
+            
+            stdev_az = np.std(data.az)
+            plus_az = 0 + self.sigma*stdev_az
+            minus_az = 0 - self.sigma*stdev_az
         
         number_of_errors = 0
         for event in events:
@@ -231,7 +251,7 @@ class EventFinder():
                     error_found = 1
                     for point in event.ax:
                         if (point > plus_ax or point < minus_ax):
-                            print("Error: Acceleration ax = "+str(point)+", mean + sigma*stdev = "+str(plus_ax)+", mean - sigmas*tdev = "+str(minus_ax))
+                            print("Coherence error.")
                             break
                     
             if (any(point > plus_ay or point < minus_ay for point in event.ay)) and ("y" not in event.axis):
@@ -240,7 +260,7 @@ class EventFinder():
                     error_found = 1
                     for point in event.ay:
                         if (point > plus_ay or point < minus_ay):
-                            print("Error: Acceleration ay = "+str(point)+", mean + sigma*stdev = "+str(plus_ay)+", mean - sigma*stdev = "+str(minus_ay))
+                            print("Coherence error.")
                             break
                     
             if (any(point > plus_az or point < minus_az for point in event.az)) and ("z" not in event.axis):
@@ -249,7 +269,7 @@ class EventFinder():
                     error_found = 1
                     for point in event.az:
                         if (point > plus_az or point < minus_az):
-                            print("Error: Acceleration az = "+str(point)+", mean + sigma*stdev = "+str(plus_az)+", mean - sigma*stdev = "+str(minus_az))
+                            print("Coherence error.")
                             break
                     
         return number_of_errors
@@ -269,3 +289,5 @@ class EventFinder():
                     number_of_errors = number_of_errors + 1
                     
         return number_of_errors
+    
+        
