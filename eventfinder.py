@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import event as Event
 import more_itertools as mit
@@ -31,7 +32,7 @@ class EventFinder():
         while i < len(events):
     
             ### Current event --> event + window length i.e (start-w/2, end+w/2)
-            current_event = self.AddWindowLength(events[i], self.w, signal_length)
+            current_event = self.AddWindowLength(events[i], signal_length)
             events[i] = current_event
             
             ### Find previous and next events
@@ -51,7 +52,7 @@ class EventFinder():
                     
                     events, current_event, next_event, previous_event, i = self.UpdateEvents_Previous(events, current_event, previous_event, new_event)
                     if event_changed == True:
-                        events[events.index(current_event)] = self.AddWindowLength(current_event, self.w, signal_length)
+                        events[events.index(current_event)] = self.AddWindowLength(current_event, signal_length)
                         current_event = events[events.index(current_event)]
                         
                     previous_overlapping = self.AreEventsOverlapping(current_event, previous_event)
@@ -97,7 +98,7 @@ class EventFinder():
         start = min([current_event.start, overlapping_event.start])
         end = max([current_event.end, overlapping_event.end])
         axis = ''.join(sorted(set(current_event.axis + overlapping_event.axis)))
-        new_event = Event.Event(filename, start, end, axis)
+        new_event = Event.Event(start, end, axis, filename)
         
         return new_event
     
@@ -148,7 +149,7 @@ class EventFinder():
     
     ### Update events list, current_event and previous_event.
     def UpdateEvents_Previous(self, events, current_event, previous_event, new_event):
-        temp_previous_event = previous_event.copy()
+        temp_previous_event = copy.copy(previous_event)
         try:
             events[events.index(current_event)] = new_event
         except:
@@ -156,7 +157,7 @@ class EventFinder():
             print(new_event)
                 
         try:
-            events.remove(temp_previous_event)
+            events.remove(previous_event)
         except:
             print("Error while trying to remove previous event.")
             print(temp_previous_event)
@@ -171,7 +172,7 @@ class EventFinder():
     
     ### Update event list, current_event and next_event.
     def UpdateEvents_Next(self, events, current_event, next_event, new_event):
-        temp_next_event = next_event.copy()
+        temp_next_event = copy.copy(next_event)
         try:
             events[events.index(current_event)] = new_event
         except:
@@ -179,7 +180,7 @@ class EventFinder():
             print(new_event)
             
         try:
-            events.remove(temp_next_event)
+            events.remove(next_event)
         except:
             print("Error while trying to remove next event.")
             print(temp_next_event)
@@ -201,3 +202,70 @@ class EventFinder():
                 new_events.append(event)
                 
         return new_events
+    
+    
+    ### Test to check that every event has the right axis label assigned.
+    def TestCheckTagCoherence(self, events, data):
+        mean_ax = np.mean(data.ax)
+        stdev_ax = np.std(data.ax)
+        plus_ax = mean_ax + self.sigma*stdev_ax
+        minus_ax = mean_ax - self.sigma*stdev_ax
+        
+        mean_ay = np.mean(data.ay)
+        stdev_ay = np.std(data.ay)
+        plus_ay = mean_ay + self.sigma*stdev_ay
+        minus_ay = mean_ay - self.sigma*stdev_ay
+        
+        mean_az = np.mean(data.az)
+        stdev_az = np.std(data.az)
+        plus_az = mean_az + self.sigma*stdev_az
+        minus_az = mean_az - self.sigma*stdev_az
+        
+        number_of_errors = 0
+        for event in events:
+            error_found = 0
+            
+            if (any(point > plus_ax or point < minus_ax for point in event.ax)) and ("x" not in event.axis):
+                if error_found == 0:
+                    number_of_errors = number_of_errors + 1
+                    error_found = 1
+                    for point in event.ax:
+                        if (point > plus_ax or point < minus_ax):
+                            print("Error: Acceleration ax = "+str(point)+", mean + sigma*stdev = "+str(plus_ax)+", mean - sigmas*tdev = "+str(minus_ax))
+                            break
+                    
+            if (any(point > plus_ay or point < minus_ay for point in event.ay)) and ("y" not in event.axis):
+                if error_found == 0:
+                    number_of_errors = number_of_errors + 1
+                    error_found = 1
+                    for point in event.ay:
+                        if (point > plus_ay or point < minus_ay):
+                            print("Error: Acceleration ay = "+str(point)+", mean + sigma*stdev = "+str(plus_ay)+", mean - sigma*stdev = "+str(minus_ay))
+                            break
+                    
+            if (any(point > plus_az or point < minus_az for point in event.az)) and ("z" not in event.axis):
+                if error_found == 0:
+                    number_of_errors = number_of_errors + 1
+                    error_found = 1
+                    for point in event.az:
+                        if (point > plus_az or point < minus_az):
+                            print("Error: Acceleration az = "+str(point)+", mean + sigma*stdev = "+str(plus_az)+", mean - sigma*stdev = "+str(minus_az))
+                            break
+                    
+        return number_of_errors
+    
+    
+    ### Test to check that every event detected initially can be found inside one of the events found after overlapping.
+    def TestCheckEveryInitialEventIsInsideAFinalEvent(self, initial_events, final_events):
+        number_of_errors = 0
+        for initial_event in initial_events:
+            event_found = 0
+            for final_event in final_events:
+                if initial_event.start >= final_event.start and initial_event.end <= final_event.end:
+                    event_found = 1
+                    break
+            else:
+                if event_found == 0:
+                    number_of_errors = number_of_errors + 1
+                    
+        return number_of_errors

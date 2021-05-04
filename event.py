@@ -13,7 +13,7 @@ class Event():
         self.pressure = None
         
     def setup_acceleration(self, data):
-        self.ax = data.ax[self.start:self.end]
-        self.ay = data.ay[self.start:self.end]
-        self.az = data.az[self.start:self.end]
+        self.ax = data.ax[int(self.start):int(self.end)]
+        self.ay = data.ay[int(self.start):int(self.end)]
+        self.az = data.az[int(self.start):int(self.end)]
         
