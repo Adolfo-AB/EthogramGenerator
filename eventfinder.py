@@ -37,15 +37,19 @@ class EventFinder():
         while i < len(events):
     
             ### Current event --> event + window length i.e (start-w/2, end+w/2)
-            current_event = self.AddWindowLength(events[i], signal_length)
-            events[i] = current_event
+            current_event = events[i]
+            temp_current_event = self.AddWindowLength(events[i], signal_length)
             
             ### Find previous and next events
             previous_event = self.FindPreviousEvent(current_event, events)
             next_event = self.FindNextEvent(current_event, events)
             
-            previous_overlapping = self.AreEventsOverlapping(current_event, previous_event)
-            next_overlapping = self.AreEventsOverlapping(current_event, next_event)
+            previous_overlapping = self.AreEventsOverlapping(temp_current_event, previous_event)
+            next_overlapping = self.AreEventsOverlapping(temp_current_event, next_event)
+            
+            if next_overlapping == True or previous_overlapping == True:
+                current_event = self.AddWindowLength(events[i], signal_length)
+                events[i] = current_event
             
             ### While previous or next event overlap with current event:
             while next_overlapping == True or previous_overlapping == True:
