@@ -90,7 +90,7 @@ for filename in filenames:
         event.id = events.index(event)
     
     ### Export events from filename to CSV
-    export_path = "C:\\Users\\adolf\\TFG\\Output_08052021\\"
+    export_path = "C:\\Users\\adolf\\TFG\\Output_08052021_2\\"
     datamanager.ExportEventsToCSV(events, finder.sigma, finder.w, filename, export_path)
     print("Events successfully exported to .csv.")
     print("")
@@ -103,7 +103,7 @@ for event in all_events:
     event.id = i
     i = i+1
     
-export_path = "C:\\Users\\adolf\\TFG\\Output_08052021\\"
+export_path = "C:\\Users\\adolf\\TFG\\Output_08052021_2\\"
 datamanager.ExportAllEventsToCSV(all_events, finder.sigma, finder.w, export_path)
 print("All events successfully exported to .csv.")
 print("")
@@ -149,7 +149,7 @@ from matplotlib import pyplot as plt
 
 event_lengths = []                
 for event in all_events:
-    if len(event.ax) < 200000:
+    if len(event.ax) < 2000:
         event_lengths.append(len(event.ax))
 
 ### Plot event length histogram
@@ -232,10 +232,10 @@ full_corr_ay = np.array(total_maxcorr_ay)
 full_corr_az = np.array(total_maxcorr_az)
 full_lag_ax = np.array(total_lag_ax)
 
-full_corr_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\corr_ax.csv', sep = ',')
-full_corr_ay.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\corr_ay.csv', sep = ',')
-full_corr_az.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\corr_az.csv', sep = ',')
-full_lag_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\lag_ax.csv', sep = ',')
+full_corr_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ax.csv', sep = ',')
+full_corr_ay.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ay.csv', sep = ',')
+full_corr_az.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_az.csv', sep = ',')
+full_lag_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\lag_ax.csv', sep = ',')
 
 finish_time = time.time()
 total_time = finish_time - start_time
@@ -248,10 +248,10 @@ full_corr_ay = np.array(total_maxcorr_ay)
 full_corr_az = np.array(total_maxcorr_az)
 full_lag_ax = np.array(total_lag_ax)
 
-full_corr_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\corr_ax.csv', sep = ',')
-full_corr_ay.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\corr_ay.csv', sep = ',')
-full_corr_az.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\corr_az.csv', sep = ',')
-full_lag_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021\\lag_ax.csv', sep = ',')
+full_corr_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ax.csv', sep = ',')
+full_corr_ay.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ay.csv', sep = ',')
+full_corr_az.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_az.csv', sep = ',')
+full_lag_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\lag_ax.csv', sep = ',')
 
 #%% Cell 5: Plot max correlation matrix
 ### Print max correlation matrix
@@ -291,8 +291,19 @@ finish_time = time.time()
 total_time = finish_time - start_time
 print("Computing time:",total_time, "seconds.")
 
+#%% Cell 7.1: Remove the groups that have less than N elements.
+import copy
+
+event_groups = copy.copy(similar_event_groups)
+min_group_size = 1
+
+for eventgroup in event_groups:
+    if len(eventgroup) <= min_group_size:
+        event_groups.remove(eventgroup)
+        
+
 #%% Cell 8: Align events from the same group.
-events_to_align = copy.copy(similar_events_groups)
+events_to_align = copy.copy(event_groups)
 similar_events_aligned = grouper.AlignSimilarEvents(events_to_align, total_lag_ax)
 
 for eventdata in all_data:
