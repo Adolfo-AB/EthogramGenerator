@@ -79,7 +79,7 @@ for filename in filenames:
         event.id = events.index(event)
     
     ### Export events from filename to CSV
-    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\"
+    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_12052021\\"
     datamanager.ExportEventsToCSV(events, finder.sigma, finder.w, filename, export_path)
     print("Events successfully exported to .csv.")
     print("")
@@ -92,7 +92,7 @@ for event in all_events:
     event.id = i
     i = i+1
     
-export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\"
+export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_12052021\\"
 datamanager.ExportAllEventsToCSV(all_events, finder.sigma, finder.w, export_path)
 print("All events successfully exported to .csv.")
 print("")
@@ -257,6 +257,7 @@ plt.show()
 
 #%% Cell 6: Load events, correlation matrix and lag matrix
 import datamanager as DataManager
+import time
 import csv
 
 start_time = time.time()
@@ -297,7 +298,7 @@ import eventgrouper as EventGrouper
 start_time = time.time()
 
 grouper = EventGrouper.EventGrouper()
-threshold_ax = 0.45
+threshold_ax = 0.37
 threshold_ay = 0.1
 threshold_az = 0.2
 
@@ -374,6 +375,65 @@ for event_group in temp_similar_groups:
         
 print("Mean correlation coefficients: "+str(np.mean(corr_coefs)))
 
+#%% Cell 8.2: Find average event for every group.
+import numpy as np
+from matplotlib import pyplot as plt
+
+'''
+group_mean_ax, group_mean_ay, group_mean_az = [], [], []
+for group in similar_events_aligned:
+    group_ax, group_ay, group_az = [], [], []
+    for event in group:
+        group_ax.append(event.ax)
+        group_ay.append(event.ay)
+        group_az.append(event.az)
+        
+        max_len_ax = np.array([len(array) for array in group_ax]).max()
+        max_len_ay = np.array([len(array) for array in group_ay]).max()
+        max_len_az = np.array([len(array) for array in group_az]).max()
+        
+        group_ax = [np.pad(array, (0, max_len_ax - len(array)), mode='constant', constant_values=np.nan) for array in group_ax]
+        group_ay = [np.pad(array, (0, max_len_ay - len(array)), mode='constant', constant_values=np.nan) for array in group_ay]
+        group_az = [np.pad(array, (0, max_len_az - len(array)), mode='constant', constant_values=np.nan) for array in group_az]
+'''
+mean_group_ax, mean_group_ay, mean_group_az = [], [], []
+for group in similar_events_aligned:
+    group_ax, group_ay, group_az = [], [], []
+    for event in group:
+        group_ax.append(event.ax)
+        group_ay.append(event.ay)
+        group_az.append(event.az)
+        
+        max_len_ax = np.array([len(array) for array in group_ax]).max()
+        max_len_ay = np.array([len(array) for array in group_ay]).max()
+        max_len_az = np.array([len(array) for array in group_az]).max()
+        
+    group_ax = np.array([np.pad(array, (0, max_len_ax - len(array)), mode='constant', constant_values=np.nan) for array in group_ax])
+    group_ay = np.array([np.pad(array, (0, max_len_ay - len(array)), mode='constant', constant_values=np.nan) for array in group_ay])
+    group_az = np.array([np.pad(array, (0, max_len_az - len(array)), mode='constant', constant_values=np.nan) for array in group_az])
+    
+    mean_group_ax.append(np.nanmean(group_ax, axis = 0))
+    mean_group_ay.append(np.nanmean(group_ay, axis = 0))
+    mean_group_az.append(np.nanmean(group_az, axis = 0))
+
+for i in range(len(similar_events_aligned)):
+    max_ax = max(mean_group_ax[i])
+    min_ax = min(mean_group_ax[i])
+    max_ay = max(mean_group_ay[i])
+    min_ay = min(mean_group_ay[i])
+    max_az = max(mean_group_az[i])
+    min_az = min(mean_group_az[i])
+    
+    
+    fig, ax = plt.subplots(3,1,figsize = (8,6))
+    ax[0].title.set_text("Group number "+str(i)+'. Group size = '+str(len(similar_events_aligned[i])))
+    ax[0].plot(mean_group_ax[i])
+    ax[0].set_ylim([min_ax-1, max_ax+1])
+    ax[1].plot(mean_group_ay[i])
+    ax[1].set_ylim([min_ay-1, max_ay+1])
+    ax[2].plot(mean_group_az[i])
+    ax[2].set_ylim([min_az-1, max_az+1])
+
 #%% Cell 9: Plot N events from a group.
 from matplotlib import pyplot as plt
 
@@ -405,7 +465,7 @@ for event in similar_events_aligned[groupnumber]:
         i = i+1
 plt.show()
 
-#%% Cell 10: Set group label to each event and prepare the events for the reservoir computing model.
+#%% Cell 10: Set group label to each event and prepare the events for reservoir computing model.
 events_processed = []
 group_label = 0
 for group in similar_events_aligned:
@@ -415,78 +475,84 @@ for group in similar_events_aligned:
     group_label = group_label + 1
     
 
-#%% Cell 11: Testing reservoir
-import network as Network
-import data2 as Data
-import scipy.io
-
-test_name = "5s"
-
-dd = Data.Data(80)
-Network = Network.Network()
-
-dd.import_data('D:\\AdolfoAB\\cobas_infinity_3.02\\dataSorted_allOrientations.mat')
-num_nodes = 20
-
-dd.build_train_labels_lin()
-dd.build_test_labels_lin()
-
-dd.build_training_matrix()
-dd.build_test_matrix()
-
-
-input_probability = 0.1
-reservoir_probability = 0.1
-classifier = "lin"
-Network.T = dd.training_data.shape[1] #Number of training time steps
-Network.n_min = 2540 #Number time steps dismissed
-Network.K = 128 #Input layer size
-Network.N = num_nodes #Reservoir layer size
-
-
-Network.u = dd.training_data
-Network.y_teach = dd.training_results
-
-Network.setup_network(dd,num_nodes,input_probability,reservoir_probability,dd.data.shape[-1])
-
-Network.train_network(dd.data.shape[-1],classifier,dd.num_columns, dd.num_trials_train, dd.train_labels, Network.N)
-
-Network.mean_test_matrix = np.zeros([Network.N,dd.num_trials_test,dd.data.shape[-1]])
-
-Network.test_network(dd.test_data, dd.num_columns,dd.num_trials_test, Network.N, dd.data.shape[-1], t_autonom=dd.test_data.shape[1])
-
-if classifier == 'lin':
-	print(f'Performance for {test_name} using {classifier} : {dd.accuracy_lin(Network.regressor.predict(Network.mean_test_matrix.T),dd.test_labels)}')
-
-elif classifier == 'log':
-	print(f'Performance for {test_name} using {classifier} : {Network.regressor.score(Network.mean_test_matrix.T,dd.test_labels.T)}')
-
-elif classifier == '1nn':
-	print(f'Performance for {test_name} using {classifier} : {Network.regressor.score(Network.mean_test_matrix.T,dd.test_labels)}')
-
-
-#%% Cell 12: Create data structures needed for reservoir.
+#%% Cell 12: Create training data for reservoir.
 import numpy as np
+import random
+import copy
+
+events_train = []
+events_test = copy.deepcopy(events_processed)
 
 num_groups = len(similar_events_aligned)
-num_events = len(events_processed)
+num_events_train = 50
+num_events_test = len(events_processed) - num_events_train*num_groups  # Number of events from each group that we will use to train the network.
+labels_train = np.zeros(num_events_train*num_groups)
+labels_test = np.zeros(num_events_test)
+train_data_ax, train_data_ay, train_data_az, len_events_train = [], [], [], []
+test_data_ax, test_data_ay, test_data_az, len_events_test = [], [], [], []           
 
-input_data_ax, input_data_ay, input_data_az = [], [], []
-len_events = []
-labels = np.zeros((num_events, num_groups))
+group_min_lengths = []
 
-for event in events_processed:
-    len_events.append(len(event.ax))
-    labels[events_processed.index(event), event.group_label] = 1
+for group in similar_events_aligned:
+    group_min_lengths.append(np.array([len(event.ax) for event in group]).min())
+
+k = 0
+for i in range(num_events_train):
+    for j in range(num_groups):
+        for event in events_test:
+            if event.group_label == j:
+                events_train.append(event)
+                events_test.remove(event)
+                len_events_train.append(len(event.ax))
+                labels_train[k] = event.group_label
+                k = k + 1
+                for ax in event.ax:
+                    train_data_ax.append(ax)
+                for ay in event.ay:
+                    train_data_ay.append(ay)
+                for az in event.az:
+                    train_data_az.append(az)   
+                break
+
+for event in events_train:
+    event.end = event.start + group_min_lengths[event.group_label]
+    event.ax = event.ax[0:group_min_lengths[event.group_label]]
+    event.ay = event.ay[0:group_min_lengths[event.group_label]]
+    event.az = event.az[0:group_min_lengths[event.group_label]]
+            
+for event in events_test:
+    len_events_test.append(len(event.ax))
+    labels_test[events_test.index(event)] = event.group_label
     for ax in event.ax:
-        input_data_ax.append(ax)
+        test_data_ax.append(ax)
     for ay in event.ay:
-        input_data_ay.append(ay)
+        test_data_ay.append(ay)
     for az in event.az:
-        input_data_az.append(az)
+        test_data_az.append(az)
+        
+train_data = np.array([train_data_ax, train_data_ay, train_data_az])
+test_data = np.array([test_data_ax, test_data_ay, test_data_az])
 
-input_data = np.array([np.array(input_data_ax), np.array(input_data_ay), np.array(input_data_az)])
+        
+#%% Cell 12.1: Create test data for reservoir.
+import numpy as np
+import random
 
+num_groups = len(similar_events_aligned)
+num_events_test = len(events_processed) - len(events_train) # All the events that are not used in training, are used in the test.
+labels_test = np.zeros((num_events_test, num_groups))
+
+for event in events_test:
+    len_events_test.append(len(event.ax))
+    labels_test[events_test.index(event), event.group_label] = 0.9
+    for ax in event.ax:
+        test_data_ax.append(ax)
+    for ay in event.ay:
+        test_data_ay.append(ay)
+    for az in event.az:
+        test_data_az.append(az)
+
+        
 
 #%% Cell 13: Trying reservoir with my own data.
 import copy
@@ -495,17 +561,20 @@ import network2 as Network2
 Network2 = Network2.Network()
 num_nodes = 10
 
-num_events_train = int(1*num_events)
-input_probability = 0.5
-reservoir_probability = 0.5
-classifier = "lin"
+input_probability = 0.7
+reservoir_probability = 0.7
+classifier = "log"
 
-Network2.T = sum(len_events)  
-Network2.n_min = 2450
+Network2.T = sum(len_events_train)  
+Network2.n_min = 2540
 Network2.K = 3
 Network2.N = num_nodes
 
-Network2.setup_network(input_data, num_nodes, input_probability, reservoir_probability, num_groups, num_events_train)
-Network2.train_network(num_groups, classifier, num_events, len_events, labels, num_nodes)
+Network2.setup_network(train_data, num_nodes, input_probability, reservoir_probability, num_groups, num_events_train*num_groups)
+Network2.train_network(num_groups, classifier, num_events_train*num_groups, len_events_train, labels_train, num_nodes)
 
+Network2.mean_test_matrix = np.zeros([Network2.N, num_events_test])
+Network2.test_network(test_data, num_events_test, len_events_test, num_nodes, num_groups, sum(len_events_test))
 
+if classifier == 'log':
+	print(f'Performance using {classifier} : {Network2.regressor.score(Network2.mean_test_matrix.T,labels_test.T)}')

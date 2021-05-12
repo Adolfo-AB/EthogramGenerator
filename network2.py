@@ -73,7 +73,7 @@ class Network():
         alpha = 0.22/max(abs(scipy.linalg.eigvals(self.W)))
         self.W = alpha*self.W
         
-    def compute_nodes_trajectories(self, len_events, num_events, test=False, t_autonom=None): 
+    def compute_nodes_trajectories(self, len_events, num_events, test = False, t_autonom = None): 
         """
         If test=False:
             -It computes self.trajectories, which is a matrix of size TxN, where each column is the trajectory of 
@@ -142,11 +142,11 @@ class Network():
             regressor.fit(self.mean_train_matrix.T, labels)
 
         elif classifier == 'log':
-            regressor = LogisticRegression(max_iter=100000)
+            regressor = LogisticRegression(max_iter = 100000)
             regressor.fit(self.mean_train_matrix.T, labels.T)
 
         elif classifier == '1nn':
-            regressor = sklnn.KNeighborsClassifier(n_neighbors=1, algorithm='brute', metric='correlation')
+            regressor = sklnn.KNeighborsClassifier(n_neighbors = 1, algorithm = 'brute', metric = 'correlation')
             regressor.fit(self.mean_train_matrix.T, labels.T)
 
         self.regressor = regressor
@@ -160,7 +160,7 @@ class Network():
         
         self.u_test = data                        
                       
-        self.compute_nodes_trajectories(len_events, num_events, test=True, t_autonom=t_autonom)
+        self.compute_nodes_trajectories(len_events, num_events, test = True, t_autonom = t_autonom)
         
         return self
             
