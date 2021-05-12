@@ -84,7 +84,7 @@ class EventGrouper():
                 c_ay = copy.copy(corr_ay[current_event.id, next_event.id])
                 c_az = copy.copy(corr_az[current_event.id, next_event.id])
                 
-                if c_ax >= threshold_ax and c_ay >= threshold_ay and c_az >= threshold_az:
+                if float(c_ax) >= threshold_ax and float(c_ay) >= threshold_ay and float(c_az) >= threshold_az:
                     temp_similar_events.append(next_event)
                     events.remove(events[j])
                     j = i+1
@@ -113,8 +113,8 @@ class EventGrouper():
                 lag = copy.copy(full_corr_ax_lag[first_event.id][current_event.id])
                 
                 new_current_event = copy.copy(current_event)
-                current_event.start = int(float(new_current_event.start)) - lag
-                current_event.end = int(float(new_current_event.end)) - lag
+                current_event.start = int(float(new_current_event.start)) - int(lag)
+                current_event.end = int(float(new_current_event.end)) - int(lag)
                 
                 temp_similar_events_aligned.append(current_event)
             

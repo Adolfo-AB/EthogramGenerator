@@ -21,10 +21,13 @@ class Event():
         self.lower_threshold_ay = None
         self.lower_threshold_az = None
         
+        self.group_label = None
+        
     def setup_acceleration(self, data):
-        self.ax = data.ax[int(self.start):int(self.end)]
-        self.ay = data.ay[int(self.start):int(self.end)]
-        self.az = data.az[int(self.start):int(self.end)]
+        self.ax = data.ax[int(float(self.start)):int(float(self.end))]
+        self.ay = data.ay[int(float(self.start)):int(float(self.end))]
+        self.az = data.az[int(float(self.start)):int(float(self.end))]
+        self.pressure = data.pressure[int(float(self.start)):int(float(self.end))]
         
     def setup_thresholds(self, upper_threshold_ax, lower_threshold_ax, upper_threshold_ay, lower_threshold_ay, upper_threshold_az, lower_threshold_az):
         self.upper_threshold_ax = upper_threshold_ax

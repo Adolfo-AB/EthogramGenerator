@@ -24,23 +24,12 @@ all_data = []
 all_events = []
 
 ### Define the names of the datasets that we will use
-filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
-             '7501709_PHAAET_rec18112018_PRincon_S1',
-             '7501755_PHAAET_rec27112018_PRincon_S1', 
-             '8200163_PHAAET_rec14052019_PRoque_S1',
-             '8200445_PHAAET_rec290422019_PRincon_S1',
-             '8200473_PHAAET_rec24052019_PRincon_S2',
-             '8200487_PHAAET_rec04052019_PRincon_S1',
-             '8200718_PHAAET_rec08032019_PRincon',
-             '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
-             '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
-             '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-             '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
+filenames = ['8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1']
 
 ### Detect events for a given datasets
 for filename in filenames:
     
-    path ='C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
+    path ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'
     computing_time = time.time()
     
     # Load data and filter acceleration signals with a butterworth filter
@@ -90,7 +79,7 @@ for filename in filenames:
         event.id = events.index(event)
     
     ### Export events from filename to CSV
-    export_path = "C:\\Users\\adolf\\TFG\\Output_08052021_2\\"
+    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\"
     datamanager.ExportEventsToCSV(events, finder.sigma, finder.w, filename, export_path)
     print("Events successfully exported to .csv.")
     print("")
@@ -103,7 +92,7 @@ for event in all_events:
     event.id = i
     i = i+1
     
-export_path = "C:\\Users\\adolf\\TFG\\Output_08052021_2\\"
+export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\"
 datamanager.ExportAllEventsToCSV(all_events, finder.sigma, finder.w, export_path)
 print("All events successfully exported to .csv.")
 print("")
@@ -193,7 +182,7 @@ for eventdata in all_data:
             event.setup_thresholds(upper_threshold_ax, lower_threshold_ax, upper_threshold_ay, lower_threshold_ay, upper_threshold_az, lower_threshold_az)
             
 for event in all_events:
-    if len(event.axis) == 2:
+    if len(event.axis) == 3:
     #if event.id == 245 or event.id == 3:
         fig, ax = plt.subplots(3,1,figsize = (8,6))
         ax[0].title.set_text("Event id: "+str(event.id)+". Event Axis: "+event.axis)
@@ -211,7 +200,7 @@ for event in all_events:
         ax[2].set_ylim([-9, 9])
         plt.show()
 
-#%% Cell 4: Group events based on max correlation
+#%% Cell 4: Compute max correlation between each event.
 import numpy as np
 import eventgrouper as EventGrouper
 start_time = time.time()
@@ -232,10 +221,10 @@ full_corr_ay = np.array(total_maxcorr_ay)
 full_corr_az = np.array(total_maxcorr_az)
 full_lag_ax = np.array(total_lag_ax)
 
-full_corr_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ax.csv', sep = ',')
-full_corr_ay.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ay.csv', sep = ',')
-full_corr_az.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_az.csv', sep = ',')
-full_lag_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\lag_ax.csv', sep = ',')
+full_corr_ax.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\corr_ax_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
+full_corr_ay.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\corr_ay_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
+full_corr_az.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\corr_az_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
+full_lag_ax.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\lag_ax_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
 
 finish_time = time.time()
 total_time = finish_time - start_time
@@ -248,11 +237,10 @@ full_corr_ay = np.array(total_maxcorr_ay)
 full_corr_az = np.array(total_maxcorr_az)
 full_lag_ax = np.array(total_lag_ax)
 
-full_corr_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ax.csv', sep = ',')
-full_corr_ay.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_ay.csv', sep = ',')
-full_corr_az.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\corr_az.csv', sep = ',')
-full_lag_ax.tofile('C:\\Users\\adolf\\TFG\\Output_08052021_2\\lag_ax.csv', sep = ',')
-
+full_corr_ax.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\corr_ax_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
+full_corr_ay.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\corr_ay_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
+full_corr_az.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\corr_az_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
+full_lag_ax.tofile('D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\lag_ax_s'+str(sigma)+'_w'+str(w)+'.csv', sep = ',')
 #%% Cell 5: Plot max correlation matrix
 ### Print max correlation matrix
 from matplotlib import pyplot as plt
@@ -267,22 +255,51 @@ ax[2].title.set_text('Max correlation for az axis.')
 ax[2].imshow(full_corr_az)
 plt.show()
 
-#%% Cell 7: Load events, correlation matrix and lag matrix
+#%% Cell 6: Load events, correlation matrix and lag matrix
 import datamanager as DataManager
 import csv
 
-path = "C:\\Users\\adolf\\TFG\\Output_06052021\\"
-
-manager = DataManager.DataManager()
-all_events = manager.LoadAllEvents(path, sigma, w)
-
-#%% Cell 7: Group events based on max correlation
-import eventgrouper as EventGrouper
 start_time = time.time()
 
-threshold_ax = 0.15
-threshold_ay = 0
-threshold_az = 0
+sigma = 6
+w = 50
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_09052021\\"
+filenames = ['8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1']
+datamanager = DataManager.DataManager()
+
+all_data = []
+for filename in filenames:
+    datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'    
+    # Load data and filter acceleration signals with a butterworth filter
+    data = datamanager.LoadData(filename, datapath)
+    data.filter_accelerations(4, 0.4)
+    all_data.append(data)
+    print("Data loaded: "+filename)
+    
+manager = DataManager.DataManager()
+all_events = manager.LoadAllEvents(path, sigma, w)
+for data in all_data:
+    for event in all_events:
+        if event.filename == data.filename:
+            event.setup_acceleration(data)
+
+full_corr_ax, full_corr_ay, full_corr_az, full_lag_ax = manager.LoadCorrelationMatrix2(path, sigma, w, len(all_events))
+
+finish_time = time.time()
+total_time = finish_time - start_time
+print("Computing time:",total_time, "seconds.")
+
+#%% Cell 7: Group events based on max correlation
+import copy
+import time
+import eventgrouper as EventGrouper
+
+start_time = time.time()
+
+grouper = EventGrouper.EventGrouper()
+threshold_ax = 0.45
+threshold_ay = 0.1
+threshold_az = 0.2
 
 input_events = copy.copy(all_events)
 similar_events_groups = grouper.GroupSimilarEvents(input_events, full_corr_ax, full_corr_ay, full_corr_az, threshold_ax, threshold_ay, threshold_az)
@@ -294,17 +311,18 @@ print("Computing time:",total_time, "seconds.")
 #%% Cell 7.1: Remove the groups that have less than N elements.
 import copy
 
-event_groups = copy.copy(similar_event_groups)
-min_group_size = 1
+event_groups = []
+temp_similar_groups = copy.copy(similar_events_groups)
+min_group_size = 50
 
-for eventgroup in event_groups:
-    if len(eventgroup) <= min_group_size:
-        event_groups.remove(eventgroup)
+for eventgroup in temp_similar_groups:
+    if len(eventgroup) > min_group_size:
+        event_groups.append(eventgroup)
         
 
 #%% Cell 8: Align events from the same group.
 events_to_align = copy.copy(event_groups)
-similar_events_aligned = grouper.AlignSimilarEvents(events_to_align, total_lag_ax)
+similar_events_aligned = grouper.AlignSimilarEvents(events_to_align, full_lag_ax)
 
 for eventdata in all_data:
     for event_group in similar_events_aligned:
@@ -316,53 +334,178 @@ for eventdata in all_data:
 import numpy as np
 import eventgrouper as EventGrouper
 grouper = EventGrouper.EventGrouper()
-             
+
 ### Compute max group size
 group_sizes = []
 for event_group in similar_events_aligned:
     group_sizes.append(len(event_group))
 print("Maximum group size: "+str(max(group_sizes)))
+print("Mean group size: "+str(np.mean(group_sizes)))
 
+### Compute total number of events after processing.
+number_of_events = 0
+number_of_groups = 0
+for eventgroup in similar_events_aligned:
+    number_of_groups = number_of_groups + 1
+    for event in eventgroup:
+        number_of_events = number_of_events + 1
+print("Total number of events after processing: "+str(number_of_events))
+print("Total number of groups after processing: "+str(number_of_groups))
 
 ### Compute mean correlation coefficient (only takes account groups with size > 1)
-'''
-correlation_coefficients = []
-for event_group in similar_events_aligned:        
-    if len(event_group) > 1:
-        group_corr_ax, group_corr_ay, group_corr_az, group_lag_ax, group_lag_ay, group_lag_az = grouper.ComputeMaxCorrelationMatrix(event_group)
+temp_similar_groups = copy.deepcopy(similar_events_aligned)
+corr_coefs = []
+for event_group in temp_similar_groups:
+    group_event_sizes = []
+    for event in event_group:
+        group_event_sizes.append(len(event.ax))
+    min_event_size = min(group_event_sizes)
+    
+    group_ax = []
+    for event in event_group:
+        event.end = event.start + min_event_size
         
+        for eventdata in all_data:
+            if event.filename == eventdata.filename:
+                event.setup_acceleration(eventdata)
+                
+        group_ax.append(np.array(event.ax))
+    corr_coefs.append(np.mean(np.corrcoef(group_ax)))
         
-print("Mean correlation coefficients: "+str(np.mean(correlation_coefficients)))
-'''
-#%% Cell 6: Plot all the events from a group.
+print("Mean correlation coefficients: "+str(np.mean(corr_coefs)))
+
+#%% Cell 9: Plot N events from a group.
 from matplotlib import pyplot as plt
 
-def get_cmap(n, name='hsv'):
+def get_cmap(n, name='YlOrRd'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
     return plt.cm.get_cmap(name, n)
 
-groupnumber = 35
-cmap = get_cmap(len(similar_events_aligned[groupnumber]))
+groupnumber = 14
+number_of_events = 10000
+cmap1 = get_cmap(len(similar_events_aligned[groupnumber]))
+cmap2 = get_cmap(len(similar_events_aligned[groupnumber]), "Blues")
 
-fig, ax = plt.subplots(1,1,figsize = (8,6))
+fig, ax = plt.subplots(2,1,figsize = (8,6))
 i = 0
 for event in similar_events_aligned[groupnumber]:
-    if i < 10 and len(event.ax) < 1000:
-        ax.title.set_text("Event id: "+str(event.id)+". Event Axis: "+event.axis)
-        ax.plot(event.ax, c=cmap(i))
+    if i < number_of_events and len(event.ax) < 1000000:
+        ax[0].title.set_text("Group number "+str(groupnumber)+'. Group size = '+str(len(similar_events_aligned[groupnumber])))
+        ax[0].plot(event.ax, c=cmap1(i), lw=0.8)
+        ax[0].set_ylim([-9, 9])
+        ax[1].plot(event.pressure, c=cmap2(i), lw=0.8)
+        ax[1].set_ylim([990,1200])
         #ax[0].plot(np.full(len(event.ax), event.upper_threshold_ax), 'b-', ls=('dotted'))
         #ax[0].plot(np.full(len(event.ax), event.lower_threshold_ax), 'b-', ls=('dotted'))
-        ax.set_ylim([-9, 9])
-        #♦ax[1].plot(event.ay, c=cmap(i))
-        #ax[1].plot(np.full(len(event.ay), event.upper_threshold_ay), 'g-', ls=('dotted'))
-        #ax[1].plot(np.full(len(event.ay), event.lower_threshold_ay), 'g-', ls=('dotted'))
+        #ax[1].plot(event.ay, c=cmap(i))
         #ax[1].set_ylim([-9, 9])
         #ax[2].plot(event.az, c=cmap(i))
-        #ax[2].plot(np.full(len(event.az), event.upper_threshold_az), 'r-', ls=('dotted'))
-        #ax[2].plot(np.full(len(event.az), event.lower_threshold_az), 'r-', ls=('dotted'))
         #ax[2].set_ylim([-9, 9])
         i = i+1
 plt.show()
+
+#%% Cell 10: Set group label to each event and prepare the events for the reservoir computing model.
+events_processed = []
+group_label = 0
+for group in similar_events_aligned:
+    for event in group:
+        event.group_label = group_label
+        events_processed.append(event)
+    group_label = group_label + 1
+    
+
+#%% Cell 11: Testing reservoir
+import network as Network
+import data2 as Data
+import scipy.io
+
+test_name = "5s"
+
+dd = Data.Data(80)
+Network = Network.Network()
+
+dd.import_data('D:\\AdolfoAB\\cobas_infinity_3.02\\dataSorted_allOrientations.mat')
+num_nodes = 20
+
+dd.build_train_labels_lin()
+dd.build_test_labels_lin()
+
+dd.build_training_matrix()
+dd.build_test_matrix()
+
+
+input_probability = 0.1
+reservoir_probability = 0.1
+classifier = "lin"
+Network.T = dd.training_data.shape[1] #Number of training time steps
+Network.n_min = 2540 #Number time steps dismissed
+Network.K = 128 #Input layer size
+Network.N = num_nodes #Reservoir layer size
+
+
+Network.u = dd.training_data
+Network.y_teach = dd.training_results
+
+Network.setup_network(dd,num_nodes,input_probability,reservoir_probability,dd.data.shape[-1])
+
+Network.train_network(dd.data.shape[-1],classifier,dd.num_columns, dd.num_trials_train, dd.train_labels, Network.N)
+
+Network.mean_test_matrix = np.zeros([Network.N,dd.num_trials_test,dd.data.shape[-1]])
+
+Network.test_network(dd.test_data, dd.num_columns,dd.num_trials_test, Network.N, dd.data.shape[-1], t_autonom=dd.test_data.shape[1])
+
+if classifier == 'lin':
+	print(f'Performance for {test_name} using {classifier} : {dd.accuracy_lin(Network.regressor.predict(Network.mean_test_matrix.T),dd.test_labels)}')
+
+elif classifier == 'log':
+	print(f'Performance for {test_name} using {classifier} : {Network.regressor.score(Network.mean_test_matrix.T,dd.test_labels.T)}')
+
+elif classifier == '1nn':
+	print(f'Performance for {test_name} using {classifier} : {Network.regressor.score(Network.mean_test_matrix.T,dd.test_labels)}')
+
+
+#%% Cell 12: Create data structures needed for reservoir.
+import numpy as np
+
+num_groups = len(similar_events_aligned)
+num_events = len(events_processed)
+
+input_data_ax, input_data_ay, input_data_az = [], [], []
+len_events = []
+labels = np.zeros((num_events, num_groups))
+
+for event in events_processed:
+    len_events.append(len(event.ax))
+    labels[events_processed.index(event), event.group_label] = 1
+    for ax in event.ax:
+        input_data_ax.append(ax)
+    for ay in event.ay:
+        input_data_ay.append(ay)
+    for az in event.az:
+        input_data_az.append(az)
+
+input_data = np.array([np.array(input_data_ax), np.array(input_data_ay), np.array(input_data_az)])
+
+
+#%% Cell 13: Trying reservoir with my own data.
+import copy
+import network2 as Network2
+
+Network2 = Network2.Network()
+num_nodes = 10
+
+num_events_train = int(1*num_events)
+input_probability = 0.5
+reservoir_probability = 0.5
+classifier = "lin"
+
+Network2.T = sum(len_events)  
+Network2.n_min = 2450
+Network2.K = 3
+Network2.N = num_nodes
+
+Network2.setup_network(input_data, num_nodes, input_probability, reservoir_probability, num_groups, num_events_train)
+Network2.train_network(num_groups, classifier, num_events, len_events, labels, num_nodes)
 
 
