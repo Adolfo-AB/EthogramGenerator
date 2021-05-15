@@ -7,22 +7,22 @@ class EventGrouper():
     def __init__(self):
         pass
     
-    def ComputeMaxCorrelationMatrix(self, events):        
+    def ComputeMaxCorrelationMatrix(self, segments):        
         total_maxcorr_ax, total_maxcorr_ay, total_maxcorr_az = [], [], []
         total_lag_ax, total_lag_ay, total_lag_az  = [], [], []
         
-        for event1 in events:
+        for segment1 in segments:
             maxcorr_ax, maxcorr_ay, maxcorr_az = [], [], []
             maxcorr_lags_ax, maxcorr_lags_ay, maxcorr_lags_az  = [], [], []
-            for event2 in events:
-                a_ax = event1.ax
-                b_ax = event2.ax
+            for segment2 in segments:
+                a_ax = segment1.ax
+                b_ax = segment2.ax
                 
-                a_ay = event1.ay
-                b_ay = event2.ay
+                a_ay = segment1.ay
+                b_ay = segment2.ay
                 
-                a_az = event1.az
-                b_az = event2.az
+                a_az = segment1.az
+                b_az = segment2.az
             
                 normalized_a_ax = np.float16((a_ax - np.mean(a_ax)) / (np.std(a_ax)))
                 normalized_b_ax = np.float16((b_ax - np.mean(b_ax)) / (np.std(b_ax)))
@@ -64,61 +64,61 @@ class EventGrouper():
             
         return total_maxcorr_ax, total_maxcorr_ay, total_maxcorr_az, total_lag_ax, total_lag_ay, total_lag_az
     
-    def GroupSimilarEvents(self, input_events, corr_ax, corr_ay, corr_az, threshold_ax, threshold_ay, threshold_az):
-        ### Add a global index to each event from 0 to len(events)
-        events = copy.copy(input_events)
+    def GroupSimilarEvents(self, input_segments, corr_ax, corr_ay, corr_az, threshold_ax, threshold_ay, threshold_az):
+        ### Add a global index to each segment from 0 to len(segments)
+        segments = copy.copy(input_segments)
         
-        ### Take one event e1, if the next one has a correlation higher than threshold, we put them into a separate list. 
-        ### Repeat until there are no more events with correlation higher than threshold for e1.
-        similar_events = []
+        ### Take one segment e1, if the next one has a correlation higher than threshold, we put them into a separate list. 
+        ### Repeat until there are no more segments with correlation higher than threshold for e1.
+        similar_segments = []
         i = 0
-        while i < len(events):
-            current_event = copy.copy(events[i])
-            temp_similar_events = [current_event]
+        while i < len(segments):
+            current_segment = copy.copy(segments[i])
+            temp_similar_segments = [current_segment]
             j = i+1
-            while j < len(events):
-                next_event = copy.copy(events[j])
-                next_event_index = next_event.id
+            while j < len(segments):
+                next_segment = copy.copy(segments[j])
+                next_segment_index = next_segment.id
                 
-                c_ax = copy.copy(corr_ax[current_event.id, next_event.id])
-                c_ay = copy.copy(corr_ay[current_event.id, next_event.id])
-                c_az = copy.copy(corr_az[current_event.id, next_event.id])
+                c_ax = copy.copy(corr_ax[current_segment.id, next_segment.id])
+                c_ay = copy.copy(corr_ay[current_segment.id, next_segment.id])
+                c_az = copy.copy(corr_az[current_segment.id, next_segment.id])
                 
                 if float(c_ax) >= threshold_ax and float(c_ay) >= threshold_ay and float(c_az) >= threshold_az:
-                    temp_similar_events.append(next_event)
-                    events.remove(events[j])
+                    temp_similar_segments.append(next_segment)
+                    segments.remove(segments[j])
                     j = i+1
                 else:
                     j = j+1
                         
             else:
-                similar_events.append(temp_similar_events)
+                similar_segments.append(temp_similar_segments)
                 i = i+1
             
-        return similar_events
+        return similar_segments
     
-    def AlignSimilarEvents(self, similar_events, full_corr_ax_lag):    
-        similar_events_aligned = []
-        for i in range(0, len(similar_events)):
-            first_event = copy.copy(similar_events[i][0])
-            first_event_index = first_event.id
+    def AlignSimilarEvents(self, similar_segments, full_corr_ax_lag):    
+        similar_segments_aligned = []
+        for i in range(0, len(similar_segments)):
+            first_segment = copy.copy(similar_segments[i][0])
+            first_segment_index = first_segment.id
             
-            temp_similar_events_aligned = []
-            temp_similar_events_aligned.append(first_event)
+            temp_similar_segments_aligned = []
+            temp_similar_segments_aligned.append(first_segment)
             
-            for j in range(1, len(similar_events[i])):
-                current_event = copy.copy(similar_events[i][j])
-                current_event_index = current_event.id
+            for j in range(1, len(similar_segments[i])):
+                current_segment = copy.copy(similar_segments[i][j])
+                current_segment_index = current_segment.id
                 
-                lag = copy.copy(full_corr_ax_lag[first_event.id][current_event.id])
+                lag = copy.copy(full_corr_ax_lag[first_segment.id][current_segment.id])
                 
-                new_current_event = copy.copy(current_event)
-                current_event.start = int(float(new_current_event.start)) - int(lag)
-                current_event.end = int(float(new_current_event.end)) - int(lag)
+                new_current_segment = copy.copy(current_segment)
+                current_segment.start = int(float(new_current_segment.start)) - int(lag)
+                current_segment.end = int(float(new_current_segment.end)) - int(lag)
                 
-                temp_similar_events_aligned.append(current_event)
+                temp_similar_segments_aligned.append(current_segment)
             
-            similar_events_aligned.append(temp_similar_events_aligned)
+            similar_segments_aligned.append(temp_similar_segments_aligned)
             
-        print("Similar events aligned.")
-        return similar_events_aligned
+        print("Similar segments aligned.")
+        return similar_segments_aligned

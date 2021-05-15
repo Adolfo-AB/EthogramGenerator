@@ -1,10 +1,7 @@
-import csv
-import numpy as np
-import pandas as pd
 from scipy import signal
 
 ### Data model for acceleration data.
-class Data():
+class data():
     def __init__(self, filename, ax, ay, az):
         
         self.filename = filename
