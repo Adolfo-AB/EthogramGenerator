@@ -2,11 +2,12 @@ import copy
 import numpy as np
 import segment as sgmnt
 from scipy import signal
+from multiprocessing import Pool
 
 import more_itertools as mit
 
 class segment_manager():
-    def __init__(self, sigma, w, mode = "rest"):
+    def __init__(self, sigma, w, mode = "main"):
         
         self.sigma = sigma # Beyond sigma*stdev we consider that we have an segment or a potential behavior.
         self.w = w # Size of the window that we will use to find overlapping segments.
@@ -226,31 +227,7 @@ class segment_manager():
         next_segment = self.find_next_segment(current_segment, segments)
         i = segments.index(current_segment)
         return segments, current_segment, next_segment, previous_segment, i
-    
-    '''
-    ### Update segment list
-    def update_segments_next(self, segments, current_segment, next_segment, new_segment):
-        temp_next_segment = copy.deepcopy(next_segment)
-        try:
-            segments[segments.index(current_segment)] = new_segment
-        except:
-            print("Error while reassigning the new segment to its new position.")
-            print(new_segment)
-            
-        try:
-            segments.remove(next_segment)
-        except:
-            print("Error while trying to remove next segment.")
-            print(temp_next_segment)
-            
-        segments.sort(key=lambda segment: segment.start)
-        current_segment = new_segment
-        previous_segment = self.find_prev_segment(current_segment, segments)
-        next_segment = self.find_next_segment(current_segment, segments)
-        i = segments.index(current_segment)
-        return segments, current_segment, next_segment, previous_segment, i
-    '''
-    
+
     
     ### Removes all the segments of size smaller than threshold.
     def remove_short_segments(self, segments, min_segment_size):
@@ -343,61 +320,109 @@ class segment_manager():
                     number_of_errors = number_of_errors + 1
                     
         return number_of_errors
+
+
+    '''
+    This method allows to compute the max correlation and lag arrays. 
+    However, this is very computationally expensive and if the amount of segments is too big, it will take a long time.
+    In order to improve the performance of this process, we created the compute_corr.py file, which does the same thing but using
+    the multiprocessing package to take advantage of parallel processing. This cannot be done here because of some problematic interactions
+    between the multiprocessing package, IPython and Windows.
     
-     
-    def compute_max_correlation(self, segments):        
-        total_maxcorr_ax, total_maxcorr_ay, total_maxcorr_az = [], [], []
-        total_lag_ax, total_lag_ay, total_lag_az  = [], [], []
+    In order to run compute_corr.py, just open the compute_corr.py file 
+    and set up the proper paths and filenames where the acceleration data and segments are.
+    Then, open a cmd at the corresponding window and write "python "compute_corr.py"". 
+    The correlation and lag arrays will be exported as .npy files.
+    
+    signal.correlation_lags method needs Scipy 1.6.3 to work.
+    '''
+    ### Compute max correlation between each event of an  axis.    
+    def compute_max_corr(self, segments):
+        maxcorr, maxcorr_lag = np.empty((len(segments), len(segments))), np.empty((len(segments), len(segments)))
+        for i in range(len(segments)):
+            for j in range(len(segments)):
+                a = segments[i]
+                b = segments[j]
+                
+                normalized_a = np.float32((a - np.mean(a)) / np.std(a))
+                normalized_b = np.float32((b - np.mean(b)) / np.std(b))
+                
+                corr = np.float32(np.correlate(normalized_a, normalized_b, 'full') / max(len(a), len(b)))
+                maxcorr[i,j] = max(corr)
+                
+                lag = signal.correlation_lags(normalized_a.size, normalized_b.size, mode = 'full')
+                maxcorr_lag[i,j] = lag[np.argmax(corr)]
+                
+        return maxcorr, maxcorr_lag
+    
+    
+    '''
+    This method groups similar segments based on their mutual max correlation for each axis.
+    To do this it takes into accounts a threshold for each axis,
+    i.e. if the max correlation between 2 segment in x axis is > than threshold_ax, they are grouped together
+    '''
+    def group_similar_segments(self, input_segments, corr_ax, corr_ay, corr_az, threshold_ax, threshold_ay, threshold_az):
+        ### Add a global index to each segment from 0 to len(segments)
+        segments = copy.copy(input_segments)
         
-        for segment1 in segments:
-            maxcorr_ax, maxcorr_ay, maxcorr_az = [], [], []
-            maxcorr_lags_ax, maxcorr_lags_ay, maxcorr_lags_az  = [], [], []
-            for segment2 in segments:
-                a_ax = segment1.ax
-                b_ax = segment2.ax
+        ### Take one segment e1, if the next one has a correlation higher than threshold, we put them into a separate list. 
+        ### Repeat until there are no more segments with correlation higher than threshold for e1.
+        similar_segments = []
+        i = 0
+        while i < len(segments):
+            current_segment = copy.copy(segments[i])
+            temp_similar_segments = [current_segment]
+            j = i+1
+            while j < len(segments):
+                next_segment = copy.copy(segments[j])
+                next_segment_index = next_segment.id
                 
-                a_ay = segment1.ay
-                b_ay = segment2.ay
+                c_ax = copy.copy(corr_ax[current_segment.id, next_segment.id])
+                c_ay = copy.copy(corr_ay[current_segment.id, next_segment.id])
+                c_az = copy.copy(corr_az[current_segment.id, next_segment.id])
                 
-                a_az = segment1.az
-                b_az = segment2.az
+                if float(c_ax) >= threshold_ax and float(c_ay) >= threshold_ay and float(c_az) >= threshold_az:
+                    temp_similar_segments.append(next_segment)
+                    segments.remove(segments[j])
+                    j = i+1
+                else:
+                    j = j+1
+                        
+            else:
+                similar_segments.append(temp_similar_segments)
+                i = i+1
             
-                normalized_a_ax = np.float16((a_ax - np.mean(a_ax)) / (np.std(a_ax)))
-                normalized_b_ax = np.float16((b_ax - np.mean(b_ax)) / (np.std(b_ax)))
-                
-                normalized_a_ay = np.float16((a_ay - np.mean(a_ay)) / (np.std(a_ay)))
-                normalized_b_ay = np.float16((b_ay - np.mean(b_ay)) / (np.std(b_ay)))
-                
-                normalized_a_az = np.float16((a_az - np.mean(a_az)) / (np.std(a_az)))
-                normalized_b_az = np.float16((b_az - np.mean(b_az)) / (np.std(b_az)))
-                
-                corr_ax = np.float32(np.correlate(normalized_a_ax, normalized_b_ax, 'full') / max(len(a_ax), len(b_ax)))
-                maxcorr_ax.append(max(corr_ax))
-                
-                corr_ay = np.float32(np.correlate(normalized_a_ay, normalized_b_ay, 'full') / max(len(a_ay), len(b_ay)))
-                maxcorr_ay.append(max(corr_ay))
-                
-                corr_az = np.float32(np.correlate(normalized_a_az, normalized_b_az, 'full') / max(len(a_az), len(b_az)))
-                maxcorr_az.append(max(corr_az))
-                
-                lags_ax = signal.correlation_lags(normalized_a_ax.size, normalized_b_ax.size, mode="full")
-                lag_ax = lags_ax[np.argmax(corr_ax)]
-                maxcorr_lags_ax.append(lag_ax)
-                
-                lags_ay = signal.correlation_lags(normalized_a_ay.size, normalized_b_ay.size, mode="full")
-                lag_ay = lags_ay[np.argmax(corr_ay)]
-                maxcorr_lags_ay.append(lag_ay)
-                
-                lags_az = signal.correlation_lags(normalized_a_az.size, normalized_b_az.size, mode="full")
-                lag_az = lags_az[np.argmax(corr_az)]
-                maxcorr_lags_az.append(lag_az)
+        return similar_segments
+    
+    '''
+    This method aligns each segment from a given group with the first segment of that group,
+    using the lag where the correlation was maximum.
+    '''
+    def align_segments(self, similar_segments, full_corr_ax_lag):    
+        similar_segments_aligned = []
+        for i in range(0, len(similar_segments)):
+            first_segment = copy.copy(similar_segments[i][0])
+            first_segment_index = first_segment.id
             
-            total_maxcorr_ax.append(maxcorr_ax)
-            total_maxcorr_ay.append(maxcorr_ay)
-            total_maxcorr_az.append(maxcorr_az)
+            temp_similar_segments_aligned = []
+            temp_similar_segments_aligned.append(first_segment)
             
-            total_lag_ax.append(maxcorr_lags_ax)
-            total_lag_ay.append(maxcorr_lags_ay)
-            total_lag_az.append(maxcorr_lags_az)
+            for j in range(1, len(similar_segments[i])):
+                current_segment = copy.copy(similar_segments[i][j])
+                current_segment_index = current_segment.id
+                
+                lag = copy.copy(full_corr_ax_lag[first_segment.id][current_segment.id])
+                
+                new_current_segment = copy.copy(current_segment)
+                current_segment.start = int(float(new_current_segment.start)) - int(lag)
+                current_segment.end = int(float(new_current_segment.end)) - int(lag)
+                
+                temp_similar_segments_aligned.append(current_segment)
             
-        return total_maxcorr_ax, total_maxcorr_ay, total_maxcorr_az, total_lag_ax, total_lag_ay, total_lag_az
+            similar_segments_aligned.append(temp_similar_segments_aligned)
+            
+        print("Similar segments aligned.")
+        return similar_segments_aligned
+                
+                
+        

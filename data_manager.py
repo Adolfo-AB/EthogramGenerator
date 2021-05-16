@@ -40,7 +40,7 @@ class data_manager():
     
     def load_all_segments(self, path, sigma, w):
         import segment as sgmnt
-        csv_filename = "allevents_sigma"+str(sigma)+"_w"+str(w)+".csv" 
+        csv_filename = "allsegments_sigma"+str(sigma)+"_w"+str(w)+".csv" 
         pathfile = path + csv_filename
         
         segments = []
