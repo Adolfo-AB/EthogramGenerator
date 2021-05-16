@@ -1,6 +1,8 @@
 import csv
-import pandas as pd
 import data as dt
+import numpy as np
+import pandas as pd
+import segment as sgmnt
 
 class data_manager():
     def __init__(self):
@@ -16,7 +18,7 @@ class data_manager():
             accelerations = data_pd.loc[:, ['X', 'Y', 'Z']].values
             
         data = dt.data(filename, accelerations[:,0], accelerations[:,1], accelerations[:,2])
-        data.pressure = data_pd.loc[:, ['Pressure']].values 
+        data.pressure = np.array(data_pd.loc[:, ['Pressure']].values)
         
         return data
         
@@ -39,7 +41,6 @@ class data_manager():
         return segments
     
     def load_all_segments(self, path, sigma, w):
-        import segment as sgmnt
         csv_filename = "allsegments_sigma"+str(sigma)+"_w"+str(w)+".csv" 
         pathfile = path + csv_filename
         

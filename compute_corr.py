@@ -70,8 +70,18 @@ if __name__ == "__main__":
     data_manager = data_manager.data_manager()
     
     ### Load acceleration data
-    filenames = ['8200487_PHAAET_rec04052019_PRincon_S1',
-                 '8200718_PHAAET_rec08032019_PRincon']
+    filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
+                '7501709_PHAAET_rec18112018_PRincon_S1',
+                '7501755_PHAAET_rec27112018_PRincon_S1', 
+                '8200163_PHAAET_rec14052019_PRoque_S1',
+                '8200445_PHAAET_rec290422019_PRincon_S1',
+                '8200473_PHAAET_rec24052019_PRincon_S2',
+                '8200487_PHAAET_rec04052019_PRincon_S1',
+                '8200718_PHAAET_rec08032019_PRincon',
+                '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
+                '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
+                '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1']
+    
     all_data = []
     for filename in filenames:
         #datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
@@ -84,14 +94,13 @@ if __name__ == "__main__":
     
     ### Load previously created acceleration segments
     #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_15052021\\"
-    path = "C:\\Users\\adolf\\TFG\\Output_16052021\\"    
+    path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"    
     all_segments = data_manager.load_all_segments(path, sigma, w)
     for data in all_data:
         for segment in all_segments:
             if segment.filename == data.filename:
-                segment.data = data
-                segment.setup_acceleration()
-    
+                segment.setup_acceleration(data)
+                
     ### Prepare segments to compute max correlation
     i = 0
     segments_ax, segments_ay, segments_az = [], [], []

@@ -2,8 +2,6 @@ import copy
 import numpy as np
 import segment as sgmnt
 from scipy import signal
-from multiprocessing import Pool
-
 import more_itertools as mit
 
 class segment_manager():
@@ -320,8 +318,9 @@ class segment_manager():
                     number_of_errors = number_of_errors + 1
                     
         return number_of_errors
-
-
+    
+####################################################################################################################################
+####################################################################################################################################
     '''
     This method allows to compute the max correlation and lag arrays. 
     However, this is very computationally expensive and if the amount of segments is too big, it will take a long time.
@@ -398,20 +397,18 @@ class segment_manager():
     This method aligns each segment from a given group with the first segment of that group,
     using the lag where the correlation was maximum.
     '''
-    def align_segments(self, similar_segments, full_corr_ax_lag):    
+    def align_segments(self, similar_segments, lag_ax):    
         similar_segments_aligned = []
         for i in range(0, len(similar_segments)):
             first_segment = copy.copy(similar_segments[i][0])
-            first_segment_index = first_segment.id
             
             temp_similar_segments_aligned = []
             temp_similar_segments_aligned.append(first_segment)
             
             for j in range(1, len(similar_segments[i])):
                 current_segment = copy.copy(similar_segments[i][j])
-                current_segment_index = current_segment.id
                 
-                lag = copy.copy(full_corr_ax_lag[first_segment.id][current_segment.id])
+                lag = copy.copy(lag_ax[first_segment.id][current_segment.id])
                 
                 new_current_segment = copy.copy(current_segment)
                 current_segment.start = int(float(new_current_segment.start)) - int(lag)
@@ -423,6 +420,83 @@ class segment_manager():
             
         print("Similar segments aligned.")
         return similar_segments_aligned
+    
+    
+    ### This method removes the groups that are smaller than min_group_size.
+    def remove_small_groups(self, groups, min_group_size):
+        result_groups = []
+        for group in groups:
+            if len(group) >= min_group_size:
+                result_groups.append(group)
                 
+        return result_groups
+    
+    ### Find group metrics.
+    def find_group_metrics(self, groups, all_data):
+        group_sizes = []
+        for group in groups:
+            group_sizes.append(len(group))
+        print("Maximum group size: "+str(max(group_sizes)))
+        print("Mean group size: "+str(np.mean(group_sizes)))
+        
+        ### Compute total number of segments after processing.
+        number_of_segments = 0
+        number_of_groups = 0
+        for group in groups:
+            number_of_groups = number_of_groups + 1
+            for segment in group:
+                number_of_segments = number_of_segments + 1
+        print("Total number of segments after processing: "+str(number_of_segments))
+        print("Total number of groups after processing: "+str(number_of_groups))
+        
+        ### Compute mean correlation coefficient (only takes account groups with size > 1)
+        temp_groups = copy.deepcopy(groups)
+        corr_coefs = []
+        for group in temp_groups:
+            group_segment_sizes = []
+            for segment in group:
+                group_segment_sizes.append(len(segment.ax))
+            min_segment_size = min(group_segment_sizes)
+            
+            group_ax = []
+            for segment in group:
+                segment.end = segment.start + min_segment_size
+                
+                [segment.setup_acceleration(data) for data in all_data if segment.filename == data.filename]
+        
+                group_ax.append(np.array(segment.ax))
+            corr_coefs.append(np.mean(np.corrcoef(group_ax)))
+               
+        print("Mean correlation coefficients: "+str(np.mean(corr_coefs)))
+        
+        
+    ### This method finds the average behavior from each of the segment groups.    
+    def find_average_behavior(self, groups):
+        avrg_group_ax, avrg_group_ay, avrg_group_az, avrg_group_pressure = [], [], [], []
+        for group in groups:
+            group_ax, group_ay, group_az, group_pressure = [], [], [], []
+            for segment in group:
+                group_ax.append(segment.ax)
+                group_ay.append(segment.ay)
+                group_az.append(segment.az)
+                group_pressure.append(segment.pressure[:,0])
+                
+                max_len_ax = np.array([len(array) for array in group_ax]).max()
+                max_len_ay = np.array([len(array) for array in group_ay]).max()
+                max_len_az = np.array([len(array) for array in group_az]).max()
+                max_len_pressure = np.array([len(array) for array in group_pressure]).max()
+                
+            group_ax = np.array([np.pad(array, (0, max_len_ax - len(array)), mode='constant', constant_values=np.nan) for array in group_ax])
+            group_ay = np.array([np.pad(array, (0, max_len_ay - len(array)), mode='constant', constant_values=np.nan) for array in group_ay])
+            group_az = np.array([np.pad(array, (0, max_len_az - len(array)), mode='constant', constant_values=np.nan) for array in group_az])
+            group_pressure = np.array([np.pad(array, (0, max_len_pressure - len(array)), mode='constant', constant_values=np.nan) for array in group_pressure])
+            
+            avrg_group_ax.append(np.nanmean(group_ax, axis = 0))
+            avrg_group_ay.append(np.nanmean(group_ay, axis = 0))
+            avrg_group_az.append(np.nanmean(group_az, axis = 0))
+            avrg_group_pressure.append(np.nanmean(group_pressure, axis = 0))
+            
+        return avrg_group_ax, avrg_group_ay, avrg_group_az, avrg_group_pressure
+                        
                 
         

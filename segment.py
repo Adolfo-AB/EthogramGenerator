@@ -33,7 +33,8 @@ class segment():
         
         self.group_label = None
         
-    def setup_acceleration(self):
+    def setup_acceleration(self, data):
+        self.data = data
         self.ax = self.data.ax[int(float(self.start)):int(float(self.end))]
         self.ay = self.data.ay[int(float(self.start)):int(float(self.end))]
         self.az = self.data.az[int(float(self.start)):int(float(self.end))]

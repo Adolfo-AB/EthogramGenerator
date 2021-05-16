@@ -25,8 +25,17 @@ all_data = []
 all_segments = []
 
 ### Define the names of the datasets that we will use
-filenames = ['8200487_PHAAET_rec04052019_PRincon_S1',
-             '8200718_PHAAET_rec08032019_PRincon']
+filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
+            '7501709_PHAAET_rec18112018_PRincon_S1',
+            '7501755_PHAAET_rec27112018_PRincon_S1', 
+            '8200163_PHAAET_rec14052019_PRoque_S1',
+            '8200445_PHAAET_rec290422019_PRincon_S1',
+            '8200473_PHAAET_rec24052019_PRincon_S2',
+            '8200487_PHAAET_rec04052019_PRincon_S1',
+            '8200718_PHAAET_rec08032019_PRincon',
+            '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
+            '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
+            '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1']
 
 ### Detect events for a given datasets
 for filename in filenames:
@@ -83,8 +92,7 @@ for filename in filenames:
 
     ### Add acceleration data and segment id to each segment.
     for segment in current_segments:
-        segment.data = current_data
-        segment.setup_acceleration()
+        segment.setup_acceleration(current_data)
         segment.id = current_segments.index(segment)
    
     '''
@@ -108,7 +116,7 @@ for filename in filenames:
         segment.id = current_segments.index(segment)
     
     ### Export segments from filename to CSV
-    export_path = "C:\\Users\\adolf\\TFG\\Output_16052021\\"
+    export_path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"
     data_manager.export_segments(current_segments, sigma, w, filename, export_path)
     print("Segments successfully exported to .csv.")
     print("")
@@ -195,7 +203,7 @@ for segment in all_segments:
 
 ### Export all segments to CSV
 #export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_12052021\\"
-export_path = "C:\\Users\\adolf\\TFG\\Output_16052021\\"
+export_path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"
 
 data_manager.export_all_segments(all_segments, sigma, w, export_path)
 print("All segments successfully exported to .csv.")
@@ -253,7 +261,7 @@ fig, ax = plt.subplots(1,1,figsize = (8,6))
 ax.title.set_text("Event length histogram.")
 ax.hist(segment_lengths, bins=200, log=True)  # arguments are passed to np.histogram)
 
-#%% Cell 3.1: Set up some values for plotting.
+#%% Cell 3: Set up some values for plotting.
 import numpy as np
 
 ### Set upper and lower thresholds for plotting
@@ -299,7 +307,7 @@ for data in all_data:
             segment.min_az, segment.max_az = min_az, max_az
             segment.min_pressure, segment.max_pressure = min_pressure, max_pressure
 
-#%% Cell 3.2: Plot some of the segments.
+#%% Cell 3.1: Plot some of the segments.
 from matplotlib import pyplot as plt
  
 ### Plot segments given a condition
@@ -307,7 +315,6 @@ j = 0
 while j <= 5:
     for segment in all_segments:
         if len(segment.axis) == 3:
-        #if segment.id == 245 or segment.id == 3:
             j += 1
             fig, ax = plt.subplots(4,1,figsize = (8,6))
             ax[0].title.set_text("Segment id: "+str(segment.id)+". Segment Axis: "+segment.axis)
@@ -378,7 +385,7 @@ maxcorr_ay, lag_ay = segment_manager.compute_max_corr(segments_ay)
 maxcorr_az, lag_az = segment_manager.compute_max_corr(segments_az)
 
 ### Save correlation and lag into numpy format
-path = "C:\\Users\\adolf\\TFG\\Output_16052021\\" 
+path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\" 
 np.save(os.path.join(path, 'maxcorr_ax.npy'), maxcorr_ax)
 np.save(os.path.join(path, 'maxcorr_ay.npy'), maxcorr_ay)
 np.save(os.path.join(path, 'maxcorr_az.npy'), maxcorr_az)
@@ -389,7 +396,7 @@ total_time = finish_time - start_time
 print("Computing time:",total_time, "seconds.")
 
 
-#%% Cell 6.0: Load events, correlation matrix and lag matrix
+#%% Cell 5: Load events, correlation matrix and lag matrix and plot max correlation matrix for each axis
 import numpy as np
 import data_manager
 from matplotlib import pyplot as plt
@@ -401,8 +408,17 @@ data_manager = data_manager.data_manager()
 ### Load acceleration data
 sigma = 6
 w = 50
-filenames = ['8200487_PHAAET_rec04052019_PRincon_S1',
-             '8200718_PHAAET_rec08032019_PRincon']
+filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
+            '7501709_PHAAET_rec18112018_PRincon_S1',
+            '7501755_PHAAET_rec27112018_PRincon_S1', 
+            '8200163_PHAAET_rec14052019_PRoque_S1',
+            '8200445_PHAAET_rec290422019_PRincon_S1',
+            '8200473_PHAAET_rec24052019_PRincon_S2',
+            '8200487_PHAAET_rec04052019_PRincon_S1',
+            '8200718_PHAAET_rec08032019_PRincon',
+            '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
+            '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
+            '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1']
 all_data = []
 for filename in filenames:
     #datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
@@ -415,13 +431,12 @@ for filename in filenames:
 
 ### Load previously created segments
 #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_15052021\\"
-path = "C:\\Users\\adolf\\TFG\\Output_16052021\\"      
+path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"      
 all_segments = data_manager.load_all_segments(path, sigma, w)
 for data in all_data:
-    for segment in all_segments:
-        if segment.filename == data.filename:
-            segment.data = data
-            segment.setup_acceleration()
+        for segment in all_segments:
+            if segment.filename == data.filename:
+                segment.setup_acceleration(data)    
 
 ### Load correlation and lag arrays            
 maxcorr_ax = np.load(path+"maxcorr_ax.npy")
@@ -444,152 +459,55 @@ fig.colorbar(im, ax=ax.ravel().tolist(), orientation = 'horizontal', aspect = 40
 fig.suptitle('Max correlation between each segment', y = 0.85)
 plt.show()
 
-
-#%% Cell 7: Group segments based on max correlation
+#%% Cell 6: Group segments based on max correlation, remove groups smaller than a threshold
+### and align the segments from each group. Compute some group metrics and plot the average behaviour from each group.
 import copy
 import time
 import segment_manager
 start_time = time.time()
 
+### Group segments
 segment_manager = segment_manager.segment_manager(sigma, w)
 threshold_ax = 0.37
 threshold_ay = 0.1
 threshold_az = 0.2
-
 input_segments = copy.copy(all_segments)
-similar_segments_groups = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
+groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
+
+### Discard smaller groups
+min_group_size = 50
+groups = segment_manager.remove_small_groups(groups_raw, 50)
+
+### Align segments from the same group
+groups = segment_manager.align_segments(groups, lag_ax)
+### Set up acceleration for the aligned segments
+for data in all_data:
+    for group in groups:
+        for segment in group:
+            if segment.filename == data.filename:
+                segment.setup_acceleration(data)
+
+### Find some group metrics
+segment_manager.find_group_metrics(groups, all_data)
+
+### Find average behavior for each group in the three axis and plot it
+avrg_group_ax, avrg_group_ay, avrg_group_az, avrg_group_pressure = segment_manager.find_average_behavior(groups)
+
+### Add a group label to each segment and save every segment into a common list again
+group_label = 0
+input_segments = []
+for group in groups:
+    for segment in group:
+        segment.group_label = group_label
+        input_segments.append(segment)
+    group_label = group_label + 1
+    
 
 finish_time = time.time()
 total_time = finish_time - start_time
 print("Computing time:",total_time, "seconds.")
 
-#%% Cell 7.1: Remove the groups that have less than N elements.
-import copy
-
-segment_groups = []
-temp_similar_groups = copy.copy(similar_segments_groups)
-min_group_size = 50
-
-for segmentgroup in temp_similar_groups:
-    if len(segmentgroup) > min_group_size:
-        segment_groups.append(segmentgroup)
-        
-
-#%% Cell 8: Align segments from the same group.
-segments_to_align = copy.copy(segment_groups)
-similar_segments_aligned = segment_manager.align_segments(segments_to_align, lag_ax)
-
-for segmentdata in all_data:
-    for segment_group in similar_segments_aligned:
-        for segment in segment_group:
-            if segment.filename == segmentdata.filename:
-                segment.setup_acceleration()
-        
-#%% Cell 8.1: Compute metrics from aligned similar groups
-import numpy as np
-import eventgrouper as EventGrouper
-grouper = EventGrouper.EventGrouper()
-
-### Compute max group size
-group_sizes = []
-for segment_group in similar_segments_aligned:
-    group_sizes.append(len(segment_group))
-print("Maximum group size: "+str(max(group_sizes)))
-print("Mean group size: "+str(np.mean(group_sizes)))
-
-### Compute total number of segments after processing.
-number_of_segments = 0
-number_of_groups = 0
-for segmentgroup in similar_segments_aligned:
-    number_of_groups = number_of_groups + 1
-    for segment in segmentgroup:
-        number_of_segments = number_of_segments + 1
-print("Total number of segments after processing: "+str(number_of_segments))
-print("Total number of groups after processing: "+str(number_of_groups))
-
-### Compute mean correlation coefficient (only takes account groups with size > 1)
-temp_similar_groups = copy.deepcopy(similar_segments_aligned)
-corr_coefs = []
-for segment_group in temp_similar_groups:
-    group_segment_sizes = []
-    for segment in segment_group:
-        group_segment_sizes.append(len(segment.ax))
-    min_segment_size = min(group_segment_sizes)
-    
-    group_ax = []
-    for segment in segment_group:
-        segment.end = segment.start + min_segment_size
-        
-        for segmentdata in all_data:
-            if segment.filename == segmentdata.filename:
-                segment.data = segmentdata
-                segment.setup_acceleration()
-                
-        group_ax.append(np.array(segment.ax))
-    corr_coefs.append(np.mean(np.corrcoef(group_ax)))
-        
-print("Mean correlation coefficients: "+str(np.mean(corr_coefs)))
-
-#%% Cell 8.2: Find average segment for every group.
-import numpy as np
-from matplotlib import pyplot as plt
-
-'''
-group_mean_ax, group_mean_ay, group_mean_az = [], [], []
-for group in similar_events_aligned:
-    group_ax, group_ay, group_az = [], [], []
-    for event in group:
-        group_ax.append(event.ax)
-        group_ay.append(event.ay)
-        group_az.append(event.az)
-        
-        max_len_ax = np.array([len(array) for array in group_ax]).max()
-        max_len_ay = np.array([len(array) for array in group_ay]).max()
-        max_len_az = np.array([len(array) for array in group_az]).max()
-        
-        group_ax = [np.pad(array, (0, max_len_ax - len(array)), mode='constant', constant_values=np.nan) for array in group_ax]
-        group_ay = [np.pad(array, (0, max_len_ay - len(array)), mode='constant', constant_values=np.nan) for array in group_ay]
-        group_az = [np.pad(array, (0, max_len_az - len(array)), mode='constant', constant_values=np.nan) for array in group_az]
-'''
-mean_group_ax, mean_group_ay, mean_group_az = [], [], []
-for group in similar_segments_aligned:
-    group_ax, group_ay, group_az = [], [], []
-    for segment in group:
-        group_ax.append(segment.ax)
-        group_ay.append(segment.ay)
-        group_az.append(segment.az)
-        
-        max_len_ax = np.array([len(array) for array in group_ax]).max()
-        max_len_ay = np.array([len(array) for array in group_ay]).max()
-        max_len_az = np.array([len(array) for array in group_az]).max()
-        
-    group_ax = np.array([np.pad(array, (0, max_len_ax - len(array)), mode='constant', constant_values=np.nan) for array in group_ax])
-    group_ay = np.array([np.pad(array, (0, max_len_ay - len(array)), mode='constant', constant_values=np.nan) for array in group_ay])
-    group_az = np.array([np.pad(array, (0, max_len_az - len(array)), mode='constant', constant_values=np.nan) for array in group_az])
-    
-    mean_group_ax.append(np.nanmean(group_ax, axis = 0))
-    mean_group_ay.append(np.nanmean(group_ay, axis = 0))
-    mean_group_az.append(np.nanmean(group_az, axis = 0))
-
-for i in range(len(similar_segments_aligned)):
-    max_ax = max(mean_group_ax[i])
-    min_ax = min(mean_group_ax[i])
-    max_ay = max(mean_group_ay[i])
-    min_ay = min(mean_group_ay[i])
-    max_az = max(mean_group_az[i])
-    min_az = min(mean_group_az[i])
-    
-    
-    fig, ax = plt.subplots(3,1,figsize = (8,6))
-    ax[0].title.set_text("Group number "+str(i)+'. Group size = '+str(len(similar_segments_aligned[i])))
-    ax[0].plot(mean_group_ax[i])
-    ax[0].set_ylim([min_ax-1, max_ax+1])
-    ax[1].plot(mean_group_ay[i])
-    ax[1].set_ylim([min_ay-1, max_ay+1])
-    ax[2].plot(mean_group_az[i])
-    ax[2].set_ylim([min_az-1, max_az+1])
-
-#%% Cell 9: Plot N segments from a group.
+#%% Plot all the segments and average behavior from each group.
 from matplotlib import pyplot as plt
 
 def get_cmap(n, name='YlOrRd'):
@@ -597,38 +515,49 @@ def get_cmap(n, name='YlOrRd'):
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
     return plt.cm.get_cmap(name, n)
 
-groupnumber = 7
-number_of_segments = 10000
-cmap1 = get_cmap(len(similar_segments_aligned[groupnumber]))
-cmap2 = get_cmap(len(similar_segments_aligned[groupnumber]), "Blues")
-
-fig, ax = plt.subplots(2,1,figsize = (8,6))
-i = 0
-for segment in similar_segments_aligned[groupnumber]:
-    if i < number_of_segments and len(segment.ax) < 1000000:
-        ax[0].title.set_text("Group number "+str(groupnumber)+'. Group size = '+str(len(similar_segments_aligned[groupnumber])))
-        ax[0].plot(segment.ax, c=cmap1(i), lw=0.8)
-        ax[0].set_ylim([-9, 9])
-        ax[1].plot(segment.pressure, c=cmap2(i), lw=0.8)
-        ax[1].set_ylim([990,1200])
-        #ax[0].plot(np.full(len(segment.ax), segment.upper_threshold_ax), 'b-', ls=('dotted'))
-        #ax[0].plot(np.full(len(segment.ax), segment.lower_threshold_ax), 'b-', ls=('dotted'))
-        #ax[1].plot(segment.ay, c=cmap(i))
-        #ax[1].set_ylim([-9, 9])
-        #ax[2].plot(segment.az, c=cmap(i))
-        #ax[2].set_ylim([-9, 9])
-        i = i+1
-plt.show()
-
-#%% Cell 10: Set group label to each segment and prepare the segments for reservoir computing model.
-segments_processed = []
-group_label = 0
-for group in similar_segments_aligned:
-    for segment in group:
-        segment.group_label = group_label
-        segments_processed.append(segment)
-    group_label = group_label + 1
+num_segments = 10000
+for i in range(len(groups)):
+    cmap1 = get_cmap(len(groups[i]), "YlGnBu")
+    cmap2 = get_cmap(len(groups[i]), "PuBuGn")
+    cmap3 = get_cmap(len(groups[i]), "YlOrRd")
+    cmap4 = get_cmap(len(groups[i]), "PuRd")
     
+    max_ax, min_ax = max(avrg_group_ax[i]), min(avrg_group_ax[i])
+    max_ay, min_ay = max(avrg_group_ay[i]), min(avrg_group_ay[i])
+    max_az, min_az = max(avrg_group_az[i]), min(avrg_group_az[i])
+    max_pressure, min_pressure = max(avrg_group_pressure[i]), min(avrg_group_pressure[i])
+    
+    
+    fig, ax = plt.subplots(4,2,figsize = (16,12))
+    ax[0,1].plot(avrg_group_ax[i], 'b-')
+    ax[0,1].set_ylim([min_ax-1, max_ax+1])
+    ax[0,1].set_ylabel('ax')
+    ax[1,1].plot(avrg_group_ay[i], 'g-')
+    ax[1,1].set_ylim([min_ay-1, max_ay+1])
+    ax[1,1].set_ylabel('ay')
+    ax[2,1].plot(avrg_group_az[i], 'r-')
+    ax[2,1].set_ylim([min_az-1, max_az+1])
+    ax[2,1].set_ylabel('az')
+    ax[3,1].plot(avrg_group_pressure[i], 'm-')
+    ax[3,1].set_ylim([min_pressure-10, max_pressure+10])
+    ax[3,1].set_ylabel('pressure')
+    ax[3,1].set_xlabel('samples')
+    
+    j = 0
+    for segment in groups[i]:
+        ax[0,0].plot(segment.ax, c=cmap1(j), lw=0.5)
+        ax[0,0].set_ylim([-9, 9])
+        ax[1,0].plot(segment.ay, c=cmap2(j), lw=0.5)
+        ax[1,0].set_ylim([-9, 9])
+        ax[2,0].plot(segment.az, c=cmap3(j), lw=0.5)
+        ax[2,0].set_ylim([-9, 9])
+        ax[3,0].plot(segment.pressure, c=cmap4(j), lw=0.5)
+        ax[3,0].set_ylim([950, 1250])
+        ax[3,0].set_xlabel('samples')
+        j += 1
+    
+    fig.suptitle(f'All segments and avrg segment from group {i}, group size: {str(len(groups[i]))}', y = 0.9)
+    plt.show()
 
 #%% Cell 12: Create training data for reservoir.
 import numpy as np
