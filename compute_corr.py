@@ -52,10 +52,10 @@ def compute_max_corr_1segment(segment, segments):
         normalized_b = np.float32((b - np.mean(b)) / np.std(b))
         
         corr = np.float32(np.correlate(normalized_a, normalized_b, 'full') / max(len(a), len(b)))
-        maxcorr[j] = max(corr)
+        maxcorr[j] = np.float32(max(corr))
         
         lag = signal.correlation_lags(normalized_a.size, normalized_b.size, mode = 'full')
-        maxcorr_lag[j] = lag[np.argmax(corr)]
+        maxcorr_lag[j] = np.float16(lag[np.argmax(corr)])
         
     return maxcorr, maxcorr_lag
 
