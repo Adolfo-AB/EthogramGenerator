@@ -93,8 +93,8 @@ if __name__ == "__main__":
         print("Data loaded: "+filename)
     
     ### Load previously created acceleration segments
-    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_15052021\\"
-    path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"    
+    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+    path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"    
     all_segments = data_manager.load_all_segments(path, sigma, w)
     for data in all_data:
         for segment in all_segments:

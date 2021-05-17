@@ -116,7 +116,8 @@ for filename in filenames:
         segment.id = current_segments.index(segment)
     
     ### Export segments from filename to CSV
-    export_path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"
+    #export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+    export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
     data_manager.export_segments(current_segments, sigma, w, filename, export_path)
     print("Segments successfully exported to .csv.")
     print("")
@@ -202,8 +203,8 @@ for segment in all_segments:
     i = i+1
 
 ### Export all segments to CSV
-#export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_12052021\\"
-export_path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"
+#export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
 
 data_manager.export_all_segments(all_segments, sigma, w, export_path)
 print("All segments successfully exported to .csv.")
@@ -385,7 +386,8 @@ maxcorr_ay, lag_ay = segment_manager.compute_max_corr(segments_ay)
 maxcorr_az, lag_az = segment_manager.compute_max_corr(segments_az)
 
 ### Save correlation and lag into numpy format
-path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\" 
+path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
+#path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
 np.save(os.path.join(path, 'maxcorr_ax.npy'), maxcorr_ax)
 np.save(os.path.join(path, 'maxcorr_ay.npy'), maxcorr_ay)
 np.save(os.path.join(path, 'maxcorr_az.npy'), maxcorr_az)
@@ -430,8 +432,8 @@ for filename in filenames:
     print("Data loaded: "+filename)
 
 ### Load previously created segments
-#path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_15052021\\"
-path = "C:\\Users\\adolf\\TFG\\Output_16052021_2\\"      
+#path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"      
 all_segments = data_manager.load_all_segments(path, sigma, w)
 for data in all_data:
         for segment in all_segments:
