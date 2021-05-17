@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
                 '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
                 '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-                '8201959_PHAAET_rec29122020_ICima_ninho']
+                '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
     
     all_data = []
     for filename in filenames:
@@ -142,16 +142,18 @@ if __name__ == "__main__":
     output_az = compute_max_corr_parallel(segments_az)
     
     ### Divide the output into max correlation and lag
-    maxcorr_ax, maxcorr_ay, maxcorr_az = np.array(output_ax[:][0][:])[:,0,:], np.array(output_ay[:][0][:])[:,0,:], np.array(output_az[:][0][:])[:,0,:]
-    lag_ax = np.array(output_ax[:][0][:])[:,1,:]
+    a = np.array(output_ax[:][0][:])[:,0,:]
+    np.save(os.path.join(path, 'maxcorr_ax.npy'), a)
     
-    ### Save results into .npy format
-    np.save(os.path.join(path, 'maxcorr_ax.npy'), maxcorr_ax)
-    np.save(os.path.join(path, 'maxcorr_ay.npy'), maxcorr_ay)
-    np.save(os.path.join(path, 'maxcorr_az.npy'), maxcorr_az)
-    np.save(os.path.join(path, 'lag_ax.npy'), lag_ax)
+    a = np.array(output_ay[:][0][:])[:,0,:]
+    np.save(os.path.join(path, 'maxcorr_ay.npy'), a)
     
+    a = np.array(output_az[:][0][:])[:,0,:]
+    np.save(os.path.join(path, 'maxcorr_az.npy'), a)
     
+    a = np.array(output_ax[:][0][:])[:,1,:]
+    np.save(os.path.join(path, 'lag_ax.npy'), a)
+
     finish_time = time.time()
     total_time = finish_time - start_time
     print("Computing time:",total_time, "seconds.")

@@ -36,7 +36,7 @@ filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
             '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
             '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
             '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-            '8201959_PHAAET_rec29122020_ICima_ninho']
+            '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
 
 ### Detect events for a given datasets
 for filename in filenames:
@@ -422,7 +422,7 @@ filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
             '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
             '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
             '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-            '8201959_PHAAET_rec29122020_ICima_ninho']
+            '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
 
 all_data = []
 for filename in filenames:
