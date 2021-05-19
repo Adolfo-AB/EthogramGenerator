@@ -36,13 +36,13 @@ filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
             '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
             '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
             '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-            '8201959_PHAAET_rec29122020_ICima_ninho']
+            '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
 
 ### Detect events for a given datasets
 for filename in filenames:
     
-    #path ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'
-    path = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
+    path ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'
+    #path = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
     
     # Load data and filter acceleration signals with a butterworth filter
     initial_data = data_manager.load_data(filename, path)
@@ -117,8 +117,8 @@ for filename in filenames:
         segment.id = current_segments.index(segment)
     
     ### Export segments from filename to CSV
-    #export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
-    export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
+    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+    #export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
     data_manager.export_segments(current_segments, sigma, w, filename, export_path)
     print("Segments successfully exported to .csv.")
     print("")
@@ -204,8 +204,8 @@ for segment in all_segments:
     i = i+1
 
 ### Export all segments to CSV
-#export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
-export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
+export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+#export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
 
 data_manager.export_all_segments(all_segments, sigma, w, export_path)
 print("All segments successfully exported to .csv.")
@@ -387,8 +387,8 @@ maxcorr_ay, lag_ay = segment_manager.compute_max_corr(segments_ay)
 maxcorr_az, lag_az = segment_manager.compute_max_corr(segments_az)
 
 ### Save correlation and lag into numpy format
-path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
-#path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+#path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
 np.save(os.path.join(path, 'maxcorr_ax.npy'), maxcorr_ax)
 np.save(os.path.join(path, 'maxcorr_ay.npy'), maxcorr_ay)
 np.save(os.path.join(path, 'maxcorr_az.npy'), maxcorr_az)
@@ -422,12 +422,12 @@ filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
             '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
             '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
             '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-            '8201959_PHAAET_rec29122020_ICima_ninho']
+            '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
 
 all_data = []
 for filename in filenames:
-    #datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
-    datapath = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'    
+    datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
+    #datapath = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'    
     # Load data and filter acceleration signals with a butterworth filter
     data = data_manager.load_data(filename, datapath)
     data.filter_accelerations(4, 0.4)
@@ -435,8 +435,8 @@ for filename in filenames:
     print("Data loaded: "+filename)
 
 ### Load previously created segments
-#path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
-path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"      
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+#path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"      
 all_segments = data_manager.load_all_segments(path, sigma, w)
 for data in all_data:
         for segment in all_segments:
@@ -447,7 +447,6 @@ for data in all_data:
 maxcorr_ax = np.load(path+"maxcorr_ax.npy")
 maxcorr_ay = np.load(path+"maxcorr_ay.npy")
 maxcorr_az = np.load(path+"maxcorr_az.npy")
-lag_ax = np.load(path+"lag_ax.npy")
 
 ### Plot the max correlation arrays
 fig, ax = plt.subplots(nrows=1, ncols=3, sharex=True,figsize = (18,9))
@@ -464,24 +463,67 @@ fig.colorbar(im, ax=ax.ravel().tolist(), orientation = 'horizontal', aspect = 40
 fig.suptitle('Max correlation between each segment', y = 0.85)
 plt.show()
 
+#%% Cell 5.5: Load data
+import data_manager
+
+data_manager = data_manager.data_manager()
+### Load acceleration data
+sigma = 6
+w = 50
+filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
+            '7501709_PHAAET_rec18112018_PRincon_S1',
+            '7501755_PHAAET_rec27112018_PRincon_S1', 
+            '8200163_PHAAET_rec14052019_PRoque_S1',
+            '8200445_PHAAET_rec290422019_PRincon_S1',
+            '8200473_PHAAET_rec24052019_PRincon_S2',
+            '8200487_PHAAET_rec04052019_PRincon_S1',
+            '8200718_PHAAET_rec08032019_PRincon',
+            '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
+            '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
+            '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
+            '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
+
+all_data = []
+for filename in filenames:
+    datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
+    #datapath = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'    
+    # Load data and filter acceleration signals with a butterworth filter
+    data = data_manager.load_data(filename, datapath)
+    data.filter_accelerations(4, 0.4)
+    all_data.append(data)
+    print("Data loaded: "+filename)
+
+#%% Cell 5.5.5: Save data
+import os
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+np.save(os.path.join(path, 'all_data.npy'), all_data)
+
 #%% Cell 6: Group segments based on max correlation, remove groups smaller than a threshold
 ### and align the segments from each group. Compute some group metrics and plot the average behaviour from each group.
 import copy
 import time
+import numpy as np
 import segment_manager
 start_time = time.time()
 
+'''
 ### Group segments
 segment_manager = segment_manager.segment_manager(sigma, w)
-threshold_ax = 0.37
-threshold_ay = 0.1
+threshold_ax = 0.4
+threshold_ay = 0
 threshold_az = 0.2
 input_segments = copy.copy(all_segments)
 groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
+'''
+segment_manager = segment_manager.segment_manager(6, 50)
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+all_data = np.load(path+"all_data.npy", allow_pickle = True)
+groups_raw = np.load(path+"groups_raw.npy", allow_pickle = True)
+lag_ax = np.load(path+"lag_ax.npy")
 
 ### Discard smaller groups
-min_group_size = 50
-groups = segment_manager.remove_small_groups(groups_raw, 50)
+min_group_size = 500
+groups = segment_manager.remove_small_groups(groups_raw, min_group_size)
 
 ### Align segments from the same group
 groups = segment_manager.align_segments(groups, lag_ax)
@@ -493,7 +535,7 @@ for data in all_data:
                 segment.setup_acceleration(data)
 
 ### Find some group metrics
-segment_manager.find_group_metrics(groups, all_data)
+#segment_manager.find_group_metrics(groups, all_data)
 
 ### Find average behavior for each group in the three axis and plot it
 avrg_group_ax, avrg_group_ay, avrg_group_az, avrg_group_pressure = segment_manager.find_average_behavior(groups)
@@ -550,13 +592,13 @@ for i in range(len(groups)):
     
     j = 0
     for segment in groups[i]:
-        ax[0,0].plot(segment.ax, c=cmap1(j), lw=0.5)
+        ax[0,0].plot(segment.ax, c=cmap1(j), lw=0.1)
         ax[0,0].set_ylim([-9, 9])
-        ax[1,0].plot(segment.ay, c=cmap2(j), lw=0.5)
+        ax[1,0].plot(segment.ay, c=cmap2(j), lw=0.1)
         ax[1,0].set_ylim([-9, 9])
-        ax[2,0].plot(segment.az, c=cmap3(j), lw=0.5)
+        ax[2,0].plot(segment.az, c=cmap3(j), lw=0.1)
         ax[2,0].set_ylim([-9, 9])
-        ax[3,0].plot(segment.pressure, c=cmap4(j), lw=0.5)
+        ax[3,0].plot(segment.pressure, c=cmap4(j), lw=0.1)
         ax[3,0].set_ylim([950, 1250])
         ax[3,0].set_xlabel('samples')
         j += 1
@@ -564,17 +606,17 @@ for i in range(len(groups)):
     fig.suptitle(f'All segments and avrg segment from group {i}, group size: {str(len(groups[i]))}', y = 0.9)
     plt.show()
 
-#%% Cell 12: Create training data for reservoir.
+#%% Cell 12: Create data for reservoir.
 import numpy as np
 import random
 import copy
 
 segments_train = []
-segments_test = copy.deepcopy(segments_processed)
+segments_test = copy.deepcopy(input_segments)
 
-num_groups = len(similar_segments_aligned)
-num_segments_train = 50
-num_segments_test = len(segments_processed) - num_segments_train*num_groups  # Number of segments from each group that we will use to train the network.
+num_groups = len(groups)
+num_segments_train = 500
+num_segments_test = len(input_segments) - num_segments_train*num_groups  # Number of segments from each group that we will use to train the network.
 labels_train = np.zeros(num_segments_train*num_groups)
 labels_test = np.zeros(num_segments_test)
 train_data_ax, train_data_ay, train_data_az, len_segments_train = [], [], [], []
@@ -582,7 +624,7 @@ test_data_ax, test_data_ay, test_data_az, len_segments_test = [], [], [], []
 
 group_min_lengths = []
 
-for group in similar_segments_aligned:
+for group in groups:
     group_min_lengths.append(np.array([len(segment.ax) for segment in group]).min())
 
 k = 0
@@ -622,45 +664,177 @@ for segment in segments_test:
 train_data = np.array([train_data_ax, train_data_ay, train_data_az])
 test_data = np.array([test_data_ax, test_data_ay, test_data_az])
 
-        
-#%% Cell 12.1: Create test data for reservoir.
+#%% Create data for reservoir 2.
 import numpy as np
 import random
+import copy
 
-num_groups = len(similar_segments_aligned)
-num_segments_test = len(segments_processed) - len(segments_train) # All the segments that are not used in training, are used in the test.
-labels_test = np.zeros((num_segments_test, num_groups))
+temp_input_segments = copy.deepcopy(input_segments)
+segments_train = []
+segments_test = []
 
-for segment in segments_test:
-    len_segments_test.append(len(segment.ax))
-    labels_test[segments_test.index(segment), segment.group_label] = 0.9
-    for ax in segment.ax:
-        test_data_ax.append(ax)
-    for ay in segment.ay:
-        test_data_ay.append(ay)
-    for az in segment.az:
-        test_data_az.append(az)
 
+num_groups = len(groups)
+min_group_length = min([len(group) for group in groups])
+
+num_segments_train_pergroup = int(0.8*min_group_length)
+num_segments_test_pergroup = min_group_length - num_segments_train_pergroup
+num_segments_train = num_segments_train_pergroup*num_groups
+num_segments_test = num_segments_test_pergroup*num_groups  # Number of segments from each group that we will use to train the network.
+labels_train = []
+labels_test = []
+train_data_ax, train_data_ay, train_data_az, len_segments_train = [], [], [], []
+test_data_ax, test_data_ay, test_data_az, len_segments_test = [], [], [], []           
+
+group_min_lengths = []
+
+for group in groups:
+    group_min_lengths.append(np.array([len(segment.ax) for segment in group]).min())
+
+for i in range(num_segments_train_pergroup):
+    for j in range(num_groups):
+        group_index_list = list(np.where([segment.group_label == j for segment in temp_input_segments])[0])
+        current_index = random.sample(group_index_list, 1)[0]
         
+        len_segments_train.append(len(temp_input_segments[current_index].ax))
+        for ax in temp_input_segments[current_index].ax:
+            train_data_ax.append(ax)
+        for ay in temp_input_segments[current_index].ay:
+            train_data_ay.append(ay)
+        for az in temp_input_segments[current_index].az:
+            train_data_az.append(az) 
+        
+        labels_train.append(temp_input_segments[current_index].group_label)
+        segments_train.append(temp_input_segments[current_index])
+        temp_input_segments.remove(temp_input_segments[current_index])
 
+
+for i in range(num_segments_test_pergroup):
+    for j in range(num_groups):
+        group_index_list = list(np.where([segment.group_label == j for segment in temp_input_segments])[0])
+        current_index = random.sample(group_index_list, 1)[0]
+        
+        len_segments_test.append(len(temp_input_segments[current_index].ax))
+        for ax in temp_input_segments[current_index].ax:
+            test_data_ax.append(ax)
+        for ay in temp_input_segments[current_index].ay:
+            test_data_ay.append(ay)
+        for az in temp_input_segments[current_index].az:
+            test_data_az.append(az) 
+        
+        labels_test.append(temp_input_segments[current_index].group_label)
+        segments_test.append(temp_input_segments[current_index])
+        temp_input_segments.remove(temp_input_segments[current_index])
+
+labels_train, labels_test = np.array(labels_train), np.array(labels_test)
+train_data = np.array([train_data_ax, train_data_ay, train_data_az])
+test_data = np.array([test_data_ax, test_data_ay, test_data_az])
+
+#%% Create data for reservoir 3.
+import numpy as np
+import random
+import copy
+
+temp_input_segments = copy.deepcopy(input_segments)
+segments_train = []
+segments_test = []
+
+
+num_groups = len(groups)
+group_lengths = [len(group) for group in groups]
+
+num_segments_train_pergroup = [int(0.8*group_length) for group_length in group_lengths]
+num_segments_test_pergroup = [group_length - num_segments_train_pergroup[group_lengths.index(group_length)] for group_length in group_lengths]
+                              
+num_segments_train = sum(num_segments_train_pergroup)
+num_segments_test = sum(num_segments_test_pergroup)  # Number of segments from each group that we will use to train the network.
+labels_train = []
+labels_test = []
+train_data_ax, train_data_ay, train_data_az, len_segments_train = [], [], [], []
+test_data_ax, test_data_ay, test_data_az, len_segments_test = [], [], [], []           
+
+group_min_lengths = []
+
+for group in groups:
+    group_min_lengths.append(np.array([len(segment.ax) for segment in group]).min())
+
+i = 0
+while i <= num_segments_train:
+    k = 0
+    while k <= num_groups:
+        group_index_list = list(np.where([segment.group_label == k for segment in temp_input_segments])[0])
+        
+        if len(group_index_list) == 0:
+            k += 1
+            continue
+        
+        current_index = random.sample(group_index_list, 1)[0]
+        len_segments_train.append(len(temp_input_segments[current_index].ax))
+        for ax in temp_input_segments[current_index].ax:
+            train_data_ax.append(ax)
+        for ay in temp_input_segments[current_index].ay:
+            train_data_ay.append(ay)
+        for az in temp_input_segments[current_index].az:
+            train_data_az.append(az) 
+        
+        labels_train.append(temp_input_segments[current_index].group_label)
+        segments_train.append(temp_input_segments[current_index])
+        temp_input_segments.remove(temp_input_segments[current_index])
+        k += 1
+        i += 1
+        
+i = 0
+while i <= num_segments_test:
+    k = 0
+    while k <= num_groups:
+        group_index_list = list(np.where([segment.group_label == k for segment in temp_input_segments])[0])
+        
+        if len(group_index_list) == 0:
+            k += 1
+            continue
+        
+        current_index = random.sample(group_index_list, 1)[0]
+        len_segments_test.append(len(temp_input_segments[current_index].ax))
+        for ax in temp_input_segments[current_index].ax:
+            test_data_ax.append(ax)
+        for ay in temp_input_segments[current_index].ay:
+            test_data_ay.append(ay)
+        for az in temp_input_segments[current_index].az:
+            test_data_az.append(az) 
+        
+        labels_test.append(temp_input_segments[current_index].group_label)
+        segments_test.append(temp_input_segments[current_index])
+        temp_input_segments.remove(temp_input_segments[current_index])
+        k += 1
+        i += 1
+
+labels_train, labels_test = np.array(labels_train), np.array(labels_test)
+train_data = np.array([train_data_ax, train_data_ay, train_data_az])
+test_data = np.array([test_data_ax, test_data_ay, test_data_az])
+
+
+#%%
+for segment in input_segments: 
+    if segment.group_label == "": 
+        print("KK")
 #%% Cell 13: Trying reservoir with my own data.
 import copy
 import network2 as Network2
 
 Network2 = Network2.Network()
-num_nodes = 10
+num_nodes = 50
 
 input_probability = 0.7
 reservoir_probability = 0.7
 classifier = "log"
 
 Network2.T = sum(len_segments_train)  
-Network2.n_min = 2540
+Network2.n_min = 1
 Network2.K = 3
 Network2.N = num_nodes
 
-Network2.setup_network(train_data, num_nodes, input_probability, reservoir_probability, num_groups, num_segments_train*num_groups)
-Network2.train_network(num_groups, classifier, num_segments_train*num_groups, len_segments_train, labels_train, num_nodes)
+Network2.setup_network(train_data, num_nodes, input_probability, reservoir_probability, num_groups, num_segments_train)
+Network2.train_network(num_groups, classifier, num_segments_train, len_segments_train, labels_train, num_nodes)
 
 Network2.mean_test_matrix = np.zeros([Network2.N, num_segments_test])
 Network2.test_network(test_data, num_segments_test, len_segments_test, num_nodes, num_groups, sum(len_segments_test))
