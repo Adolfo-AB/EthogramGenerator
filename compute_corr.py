@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
                 '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
                 '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-                '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
+				'8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
     
     all_data = []
     for filename in filenames:
@@ -157,10 +157,6 @@ if __name__ == "__main__":
     a = np.array(output_ax[:][0][:])[:,1,:]
     np.save(os.path.join(path, 'lag_ax.npy'), a)
 
-    finish_time = time.time()
-    total_time = finish_time - start_time
-    print("Computing time:",total_time, "seconds.")
-    
     finish_time = time.time()
     total_time = finish_time - start_time
     print("Computing time:",total_time, "seconds.")
