@@ -142,7 +142,7 @@ class Network():
             regressor.fit(self.mean_train_matrix.T, labels)
 
         elif classifier == 'log':
-            regressor = LogisticRegression(max_iter = 100000)
+            regressor = LogisticRegression(max_iter = 10000000000)
             regressor.fit(self.mean_train_matrix.T, labels.T)
 
         elif classifier == '1nn':

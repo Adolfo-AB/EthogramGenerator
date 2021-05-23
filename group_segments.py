@@ -1,6 +1,7 @@
 import os
 import copy
 import time
+import random
 import numpy as np
 import data_manager
 import segment_manager
@@ -36,39 +37,38 @@ def group_segments(input_segments, corr_ax, corr_ay, corr_az, threshold_ax, thre
             similar_segments.append(temp_similar_segments)
             i = i+1
         
-    return similar_segments
-
-def group_segments_partial(segments, corr_ax, corr_ay, corr_az, threshold_ax, threshold_ay, threshold_az):
-    
+    return similar_segments    
 
 if __name__ == "__main__":
     start_time = time.time()
 
     ### Initialize data_manager and segment_manager    
-    sigma = 6
+    sigma = 4
     w = 50
     mode = "mean"
     segment_manager = segment_manager.segment_manager(sigma, w, mode)
     data_manager = data_manager.data_manager()
     
     ### Load previously created acceleration segments
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
     #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"    
     all_segments = data_manager.load_all_segments(path, sigma, w)
     
     ### Load correlation data
     maxcorr_ax = np.load(path+"maxcorr_ax.npy")
     maxcorr_ay = np.load(path+"maxcorr_ay.npy")
-    maxcorr_az = np.load(path+"maxcorr_az.npy")
+    maxcorr_az = np.load(path+"maxcorr_az.npy") 
     lag_ax = np.load(path+"lag_ax.npy")
     
     ### Call the group_segments function
-    threshold_ax = 0.37
+    threshold_ax = 0.3
     threshold_ay = 0
-    threshold_az = 0.37
+    threshold_az = 0.3
     input_segments = copy.copy(all_segments)
+    random.shuffle(input_segments)
     groups_raw = group_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
     
+    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
     np.save(os.path.join(path, 'groups_raw.npy'), groups_raw)
     
     finish_time = time.time()

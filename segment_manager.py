@@ -431,6 +431,18 @@ class segment_manager():
                 
         return result_groups
     
+    ### Save N most common behaviors.
+    def save_most_common_behaviors(self, groups, N):
+        temp_groups = copy.deepcopy(groups)
+        temp_groups = sorted(temp_groups, key=lambda group: len(group))
+        #temp_groups.sort(key=lambda group: len(group))
+
+        result_groups = []
+        for i in range(N):
+            result_groups.append(temp_groups[len(temp_groups)-1-i])
+                
+        return result_groups
+    
     ### Find group metrics.
     def find_group_metrics(self, groups, all_data):
         group_sizes = []
@@ -471,30 +483,68 @@ class segment_manager():
         
         
     ### This method finds the average behavior from each of the segment groups.    
-    def find_average_behavior(self, groups):
+    def find_average_behavior(self, groups, mode="nanmean"):
         avrg_group_ax, avrg_group_ay, avrg_group_az, avrg_group_pressure = [], [], [], []
-        for group in groups:
-            group_ax, group_ay, group_az, group_pressure = [], [], [], []
-            for segment in group:
-                group_ax.append(segment.ax)
-                group_ay.append(segment.ay)
-                group_az.append(segment.az)
-                group_pressure.append(segment.pressure[:,0])
+        if mode == "normal":
+            for group in groups:
+                group_ax, group_ay, group_az, group_pressure = [], [], [], []
                 
-                max_len_ax = np.array([len(array) for array in group_ax]).max()
-                max_len_ay = np.array([len(array) for array in group_ay]).max()
-                max_len_az = np.array([len(array) for array in group_az]).max()
-                max_len_pressure = np.array([len(array) for array in group_pressure]).max()
+                for segment in group:
+                    if len(segment.ax) == 0:
+                        group.remove(segment)
                 
-            group_ax = np.array([np.pad(array, (0, max_len_ax - len(array)), mode='constant', constant_values=np.nan) for array in group_ax])
-            group_ay = np.array([np.pad(array, (0, max_len_ay - len(array)), mode='constant', constant_values=np.nan) for array in group_ay])
-            group_az = np.array([np.pad(array, (0, max_len_az - len(array)), mode='constant', constant_values=np.nan) for array in group_az])
-            group_pressure = np.array([np.pad(array, (0, max_len_pressure - len(array)), mode='constant', constant_values=np.nan) for array in group_pressure])
-            
-            avrg_group_ax.append(np.nanmean(group_ax, axis = 0))
-            avrg_group_ay.append(np.nanmean(group_ay, axis = 0))
-            avrg_group_az.append(np.nanmean(group_az, axis = 0))
-            avrg_group_pressure.append(np.nanmean(group_pressure, axis = 0))
+                group_min_len = min([len(segment.ax) for segment in group if len(segment.ax) > 0])
+                for segment in group:
+                        segment.end = segment.start + group_min_len
+                        segment.ax = segment.ax[0:group_min_len]
+                        segment.ay = segment.ay[0:group_min_len]
+                        segment.az = segment.az[0:group_min_len]
+                        segment.pressure = segment.pressure[0:group_min_len]
+                        
+                        group_ax.append(segment.ax)
+                        group_ay.append(segment.ay)
+                        group_az.append(segment.az)
+                        group_pressure.append(segment.pressure[:,0])
+                
+                avrg_group_ax.append(np.mean(group_ax, axis = 0))
+                avrg_group_ay.append(np.mean(group_ay, axis = 0))
+                avrg_group_az.append(np.mean(group_az, axis = 0))
+                avrg_group_pressure.append(np.mean(group_pressure, axis = 0))
+                          
+        if mode == "nanmean":
+            temp_groups = copy.deepcopy(groups)
+            temp_groups_2 = []
+            for group in temp_groups:
+                temp_group = []
+                group.sort(key=lambda segment: len(segment.ax))
+                len_grp = len(group)
+                for i in range(int(0.85*len_grp)):
+                    temp_group.append(group[i])
+                temp_groups_2.append(temp_group)
+                    
+            for group in temp_groups_2:
+                group_ax, group_ay, group_az, group_pressure = [], [], [], []
+                
+                for segment in group:
+                    group_ax.append(segment.ax)
+                    group_ay.append(segment.ay)
+                    group_az.append(segment.az)
+                    group_pressure.append(segment.pressure[:,0])
+                    
+                    max_len_ax = np.array([len(array) for array in group_ax]).max()
+                    max_len_ay = np.array([len(array) for array in group_ay]).max()
+                    max_len_az = np.array([len(array) for array in group_az]).max()
+                    max_len_pressure = np.array([len(array) for array in group_pressure]).max()
+                
+                group_ax = np.array([np.pad(array, (0, max_len_ax - len(array)), mode='constant', constant_values=np.nan) for array in group_ax])
+                group_ay = np.array([np.pad(array, (0, max_len_ay - len(array)), mode='constant', constant_values=np.nan) for array in group_ay])
+                group_az = np.array([np.pad(array, (0, max_len_az - len(array)), mode='constant', constant_values=np.nan) for array in group_az])
+                group_pressure = np.array([np.pad(array, (0, max_len_pressure - len(array)), mode='constant', constant_values=np.nan) for array in group_pressure])
+                
+                avrg_group_ax.append(np.nanmean(group_ax, axis = 0))
+                avrg_group_ay.append(np.nanmean(group_ay, axis = 0))
+                avrg_group_az.append(np.nanmean(group_az, axis = 0))
+                avrg_group_pressure.append(np.nanmean(group_pressure, axis = 0))
             
         return avrg_group_ax, avrg_group_ay, avrg_group_az, avrg_group_pressure
                         
