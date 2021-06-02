@@ -33,6 +33,11 @@ class segment():
         
         self.group_label = None
         
+        self.latitude = None
+        self.longitude = None
+        
+        self.timestamp = None
+        
     def setup_acceleration(self, data):
         self.data = data
         self.ax = self.data.ax[int(float(self.start)):int(float(self.end))]
@@ -48,3 +53,10 @@ class segment():
         self.lower_threshold_ax = lower_threshold_ax
         self.lower_threshold_ay = lower_threshold_ay
         self.lower_threshold_az = lower_threshold_az
+        
+    def setup_gps_data(self, data):
+        self.latitude = self.data.latitude[int(float(self.start)):int(float(self.end))]
+        self.longitude = self.data.longitude[int(float(self.start)):int(float(self.end))]
+        
+    def setup_timestamp(self, data):
+        self.timestamp = self.data.timestamp[int(float(self.start)):int(float(self.end))]

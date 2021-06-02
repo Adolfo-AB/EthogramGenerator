@@ -14,7 +14,7 @@ start_time = time.time()
 
 ### Initialize with sigma, w and mode (rest or mean).
 sigma = 8
-w = 100
+w = 50
 mode = "mean"
 segment_manager = segment_manager.segment_manager(sigma, w, mode)
 data_manager = data_manager.data_manager()
@@ -23,17 +23,7 @@ all_data = []
 all_segments = []
 
 ### Define the names of the datasets that we will use
-filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
-            '7501709_PHAAET_rec18112018_PRincon_S1',
-            '7501755_PHAAET_rec27112018_PRincon_S1', 
-            '8200163_PHAAET_rec14052019_PRoque_S1',
-            '8200445_PHAAET_rec290422019_PRincon_S1',
-            '8200473_PHAAET_rec24052019_PRincon_S2',
-            '8200487_PHAAET_rec04052019_PRincon_S1',
-            '8200718_PHAAET_rec08032019_PRincon',
-            '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
-            '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
-            '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
+filenames = ['8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
             '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
 
 ### Detect events for a given datasets
@@ -105,17 +95,12 @@ for filename in filenames:
         print("Some of the initial segments is not inside a final segment. Number of errors: "+str(number_of_errors))
     '''
     
-    ### Remove segments shorter than threshold.
-    min_segment_size = 25
-    current_segments = segment_manager.remove_short_segments(current_segments, min_segment_size)
-    print("Number of segments after removing short evernts: "+str(len(current_segments)))
-    
     ### Add segment id to each segment.
     for segment in current_segments:
         segment.id = current_segments.index(segment)
     
     ### Export segments from filename to CSV
-    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping\\"
     #export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
     data_manager.export_segments(current_segments, sigma, w, filename, export_path)
     print("Segments successfully exported to .csv.")
@@ -202,7 +187,7 @@ for segment in all_segments:
     i = i+1
 
 ### Export all segments to CSV
-export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping2\\"
 #export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
 
 data_manager.export_all_segments(all_segments, sigma, w, export_path)
@@ -385,7 +370,7 @@ maxcorr_az, lag_az = segment_manager.compute_max_corr(segments_az)
 
 ### Save correlation and lag into numpy format
 #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping\\"
 np.save(os.path.join(path, 'maxcorr_ax.npy'), maxcorr_ax)
 np.save(os.path.join(path, 'maxcorr_ay.npy'), maxcorr_ay)
 np.save(os.path.join(path, 'maxcorr_az.npy'), maxcorr_az)
@@ -432,7 +417,7 @@ for filename in filenames:
     print("Data loaded: "+filename)
 
 ### Load previously created segments
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping\\"
 #path = "C:\\Users\\adolf\\TFG\\Output_21052021\\"      
 all_segments = data_manager.load_all_segments(path, sigma, w)
 for data in all_data:
@@ -467,21 +452,10 @@ import data_manager
 
 data_manager = data_manager.data_manager()
 ### Load acceleration data
-sigma = 8
-w = 100
-filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
-            '7501709_PHAAET_rec18112018_PRincon_S1',
-            '7501755_PHAAET_rec27112018_PRincon_S1', 
-            '8200163_PHAAET_rec14052019_PRoque_S1',
-            '8200445_PHAAET_rec290422019_PRincon_S1',
-            '8200473_PHAAET_rec24052019_PRincon_S2',
-            '8200487_PHAAET_rec04052019_PRincon_S1',
-            '8200718_PHAAET_rec08032019_PRincon',
-            '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
-            '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
-            '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
+sigma = 4
+w = 200
+filenames = ['8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
             '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
-
 all_data = []
 for filename in filenames:
     datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
@@ -492,7 +466,7 @@ for filename in filenames:
     all_data.append(data)
     print("Data loaded: "+filename)
 
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping2\\"
 np.save(os.path.join(path, 'all_data.npy'), all_data)
 
 #%% Cell 6: Group segments based on max correlation, remove groups smaller than a threshold
@@ -518,12 +492,12 @@ input_segments = copy.copy(all_segments)
 groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
 '''
 
-segment_manager = segment_manager.segment_manager(8, 100)
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+segment_manager = segment_manager.segment_manager(8, 50)
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping2\\"
 all_data = np.load(path+"all_data.npy", allow_pickle = True)
 lag_ax = np.load(path+"lag_ax.npy")
 
-path2 = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+path2 = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping2\\"
 groups_raw = np.load(path2+"groups_raw.npy", allow_pickle = True)
 
 '''
@@ -533,7 +507,7 @@ groups = segment_manager.remove_small_groups(groups_raw, min_group_size)
 '''
 
 ### Save N most common behaviors
-N = 10
+N = 25
 groups = segment_manager.save_most_common_behaviors(groups_raw, N)
 
 ### Align segments from the same group
@@ -615,216 +589,3 @@ for i in range(len(groups)):
     
     fig.suptitle(f'All segments and avrg segment from group {i}, group size: {str(len(groups[i]))}', y = 0.9)
     plt.show()
-
-#%% Cell 8: Cross-validation 1. Create train and test data for Reservoir Computing (80% train, 20% test).
-import copy
-import tsaug
-import random
-import numpy as np
-from tsaug.visualization import plot
-from matplotlib import pyplot as plt
-
-temp_groups = copy.deepcopy(groups)
-#temp_groups = groups
-k = 0
-for group in temp_groups:
-    for segment in group:
-        segment.group_label = k
-    k += 1
-    
-segments_train, segments_test = [], []
-
-num_groups = len(groups)
-max_group_length = int(max([len(group) for group in groups[1:len(groups)-1]]))
-#max_group_length = 6000
-
-num_segments_train_pergroup = int(0.8*max_group_length)
-num_segments_test_pergroup = max_group_length - num_segments_train_pergroup
-num_segments_train = num_segments_train_pergroup*num_groups
-num_segments_test = num_segments_test_pergroup*num_groups  # Number of segments from each group that we will use to train the network.
-
-train_segments = []
-test_segments = []
-train_data_ax, train_data_ay, train_data_az, len_segments_train, labels_train = [], [], [], [], []
-test_data_ax, test_data_ay, test_data_az, len_segments_test, labels_test = [], [], [], [], []          
-
-### Perform data augmentation in order to have the same number of examples from each behavioral group.
-for group in temp_groups:
-    while len(group) < max_group_length:
-        #print(len(group))
-        try:
-            current_segment = copy.copy(random.choice(group))
-            
-            csa_ax = tsaug.AddNoise(scale=0.035).augment(current_segment.ax)
-            csa_ay = tsaug.AddNoise(scale=0.035).augment(current_segment.ay)
-            csa_az = tsaug.AddNoise(scale=0.035).augment(current_segment.az)
-                
-            current_segment.ax, current_segment.ay, current_segment.az = csa_ax, csa_ay, csa_az
-            group.append(current_segment)
-        except:
-            continue
-        ''' 
-        fig, ax = plt.subplots(2,1,figsize = (8,6))
-        ax[0].plot(current_segment.ax)
-        ax[1].plot(csa_ax)
-        plt.show()
-        '''
-
-for i in range(0, num_segments_train_pergroup):
-    for group in temp_groups:
-        current_segment = random.choice(group)
-        segments_train.append(current_segment)
-        len_segments_train.append(len(current_segment.ax))
-        for ax in current_segment.ax:
-            train_data_ax.append(ax)
-        for ay in current_segment.ay:
-            train_data_ay.append(ay)
-        for az in current_segment.az:
-            train_data_az.append(az)
-        labels_train.append(current_segment.group_label)
-        group.remove(current_segment)
-            
-   
-for i in range(0, num_segments_test_pergroup):
-    for group in temp_groups:
-        current_segment = random.choice(group)
-        segments_test.append(current_segment)
-random.shuffle(segments_test)
-
-for current_segment in segments_test:
-    len_segments_test.append(len(current_segment.ax))
-    for ax in current_segment.ax:
-        test_data_ax.append(ax)
-    for ay in current_segment.ay:
-        test_data_ay.append(ay)
-    for az in current_segment.az:
-        test_data_az.append(az)
-    labels_test.append(current_segment.group_label)
-      
-labels_train, labels_test = np.array(labels_train), np.array(labels_test)
-train_data = np.array([train_data_ax, train_data_ay, train_data_az])
-test_data = np.array([test_data_ax, test_data_ay, test_data_az])    
-        
-#%% Cell 8.1: Cross-validation 2. Create train and test data for Reservoir Computing (Leave one out).
-import copy
-import tsaug
-import random
-import numpy as np
-from matplotlib import pyplot as plt
-
-
-temp_groups = copy.deepcopy(groups)
-#temp_groups = groups
-k = 0
-for group in temp_groups:
-    for segment in group:
-        segment.group_label = k
-    k += 1
-    
-num_groups = len(groups)
-#max_group_length = int(max([len(group) for group in groups[1:len(groups)-1]]))
-max_group_length = 3500
-
-num_segments_train_pergroup = max_group_length
-num_segments_train = num_segments_train_pergroup*num_groups  # Number of segments from each group that we will use to train the network.
-
-train_segments = []
-test_segments = []
-train_data_ax, train_data_ay, train_data_az, len_segments_train, labels_train = [], [], [], [], []
-test_data_ax, test_data_ay, test_data_az, len_segments_test, labels_test = [], [], [], [], []          
-
-test_filename = "8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1"
-
-for group in temp_groups:
-    for current_segment in group:
-        if current_segment.filename == test_filename:
-            test_segments.append(current_segment)
-            group.remove(current_segment)
-
-random.shuffle(test_segments)
-for current_segment in test_segments:
-    len_segments_test.append(len(current_segment.ax))
-    for ax in current_segment.ax:
-        test_data_ax.append(ax)
-    for ay in current_segment.ay:
-        test_data_ay.append(ay)
-    for az in current_segment.az:
-        test_data_az.append(az)
-    labels_test.append(current_segment.group_label)
-
-for group in temp_groups:
-    while len(group) < max_group_length:
-        #print(len(group))
-        try:
-            current_segment = copy.copy(random.choice(group))
-            
-            rand = random.uniform(0, 1)
-            if rand >= 0.5:
-                csa_ax = tsaug.AddNoise(scale=0.02).augment(current_segment.ax)
-                csa_ay = tsaug.AddNoise(scale=0.02).augment(current_segment.ay)
-                csa_az = tsaug.AddNoise(scale=0.02).augment(current_segment.az)
-            else:
-                csa_ax = tsaug.Drift(max_drift=0.2, n_drift_points=5).augment(current_segment.ax)
-                csa_ay = tsaug.Drift(max_drift=0.2, n_drift_points=5).augment(current_segment.ay)
-                csa_az = tsaug.Drift(max_drift=0.2, n_drift_points=5).augment(current_segment.az)
-                
-            current_segment.ax, current_segment.ay, current_segment.az = csa_ax, csa_ay, csa_az
-            group.append(current_segment)
-        except:
-            continue
-        
-for i in range(0, num_segments_train_pergroup):
-    for group in temp_groups:
-        current_segment = random.choice(group)
-        train_segments.append(current_segment)
-        len_segments_train.append(len(current_segment.ax))
-        for ax in current_segment.ax:
-            train_data_ax.append(ax)
-        for ay in current_segment.ay:
-            train_data_ay.append(ay)
-        for az in current_segment.az:
-            train_data_az.append(az)
-        labels_train.append(current_segment.group_label)        
-
-num_segments_train = len(train_segments)
-num_segments_test = len(test_segments)
-
-labels_train, labels_test = np.array(labels_train), np.array(labels_test)
-train_data = np.array([train_data_ax, train_data_ay, train_data_az])
-test_data = np.array([test_data_ax, test_data_ay, test_data_az])         
-
-#%% Cell 9: Train and test Reservoir Computer Network using previously generated segments as input data.
-import copy
-import network as Network
-
-Network = Network.Network()
-num_nodes = 300
-
-input_probability = 0.5
-reservoir_probability = 0.5
-classifier = "log"
-
-Network.T = sum(len_segments_train)  
-Network.n_min = 1
-Network.K = 3
-Network.N = num_nodes
-
-Network.setup_network(train_data, num_nodes, input_probability, reservoir_probability, num_groups, num_segments_train)
-Network.train_network(num_groups, classifier, num_segments_train, len_segments_train, labels_train, num_nodes)
-
-Network.mean_test_matrix = np.zeros([Network.N, num_segments_test])
-Network.test_network(test_data, num_segments_test, len_segments_test, num_nodes, num_groups, sum(len_segments_test))
-
-if classifier == 'log':
-    print(f'Performance using {classifier} : {Network.regressor.score(Network.mean_test_matrix.T,labels_test.T)}')
-    prediction = Network.regressor.predict(Network.mean_test_matrix.T)
-    
-    
-#%% Cell 10: Plot confusion matrix.
-from sklearn.metrics import plot_confusion_matrix
-
-fig, ax = plt.subplots(figsize = (12,9))
-disp = plot_confusion_matrix(Network.regressor, Network.mean_test_matrix.T, labels_test.T, normalize='true', ax=ax)
-disp.ax_.set_title("Confusion matrix")
-plt.show()
-

@@ -1,4 +1,5 @@
 import csv
+import datetime
 import data as dt
 import numpy as np
 import pandas as pd
@@ -19,8 +20,76 @@ class data_manager():
             
         data = dt.data(filename, accelerations[:,0], accelerations[:,1], accelerations[:,2])
         data.pressure = np.array(data_pd.loc[:, ['Pressure']].values)
-        
         return data
+    
+    ### Load acceleration data including pressure, latitude, longitude and timestamp
+    def load_data_gps(self, filename, path):
+        try:
+            data_pd = pd.read_csv(path + filename + '.csv', header=0, sep=';')
+            accelerations = data_pd.loc[:, ['X', 'Y', 'Z']].values
+        except:
+            data_pd = pd.read_csv(path + filename + '.csv', header=0)
+            accelerations = data_pd.loc[:, ['X', 'Y', 'Z']].values
+            
+        data = dt.data(filename, accelerations[:,0], accelerations[:,1], accelerations[:,2])
+        
+        data.pressure = np.array(data_pd.loc[:, ['Pressure']].values)
+        
+        latitude = data_pd.loc[:, ['location-lat']].values
+        longitude = data_pd.loc[:, ['location-lon']].values
+        data.latitude = np.array(latitude)
+        data.longitude = np.array(longitude)
+        '''
+        try:
+            datetime_format = "%d/%m/%Y %H:%M:%S.%f"
+            temp_datetimes = data_pd.loc[:, ['Timestamp']].values
+            datetimes = []
+            for dtime in temp_datetimes:
+                dtime = datetime.datetime.strptime(dtime[0], datetime_format)
+                datetimes.append(dtime)
+        except:
+            datetime_format = "%d-%m-%Y %H:%M:%S.%f"
+            temp_datetimes = data_pd.loc[:, ['Timestamp']].values
+            datetimes = []
+            for dtime in temp_datetimes:
+                dtime = datetime.datetime.strptime(dtime[0], datetime_format)
+                datetimes.append(dtime)
+            
+        data.timestamp = datetimes
+        '''   
+        return data
+    
+    def load_data_datetimes(self, filename, path):
+        try:
+            data_pd = pd.read_csv(path + filename + '.csv', header=0, sep=';')
+            accelerations = data_pd.loc[:, ['X', 'Y', 'Z']].values
+        except:
+            data_pd = pd.read_csv(path + filename + '.csv', header=0)
+            accelerations = data_pd.loc[:, ['X', 'Y', 'Z']].values
+            
+        data = dt.data(filename, accelerations[:,0], accelerations[:,1], accelerations[:,2])
+        
+        data.pressure = np.array(data_pd.loc[:, ['Pressure']].values)
+        
+        try:
+            datetime_format = "%d/%m/%Y %H:%M:%S.%f"
+            temp_datetimes = data_pd.loc[:, ['Timestamp']].values
+            datetimes = []
+            for dtime in temp_datetimes:
+                dtime = datetime.datetime.strptime(dtime[0], datetime_format)
+                datetimes.append(dtime)
+        except:
+            datetime_format = "%d-%m-%Y %H:%M:%S.%f"
+            temp_datetimes = data_pd.loc[:, ['Timestamp']].values
+            datetimes = []
+            for dtime in temp_datetimes:
+                dtime = datetime.datetime.strptime(dtime[0], datetime_format)
+                datetimes.append(dtime)
+            
+        data.timestamp = datetimes
+         
+        return data
+        
         
     def load_segments(self, filename, path, sigma, w):
         csv_filename = "events_sigma"+str(sigma)+"_w"+str(w)+"_"+filename+".csv" 

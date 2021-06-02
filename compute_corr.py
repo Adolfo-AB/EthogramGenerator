@@ -33,7 +33,7 @@ def compute_max_corr_parallel(segments):
     output = []
     compute_max_corr_1segment_partial = partial(compute_max_corr_1segment, segments = segments)
     
-    pool = multiprocessing.Pool(processes = 8)
+    pool = multiprocessing.Pool(processes = 7)
     o = pool.map_async(compute_max_corr_1segment_partial, segments).get()
 
     output.append(o)
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     start_time = time.time()
 
     ### Initialize data_manager and segment_manager    
-    sigma = 6
-    w = 50
+    sigma = 8
+    w = 100
     mode = "mean"
     segment_manager = segment_manager.segment_manager(sigma, w, mode)
     data_manager = data_manager.data_manager()
@@ -81,27 +81,35 @@ if __name__ == "__main__":
                 '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
                 '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
                 '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-				'8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
+                '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
     
     all_data = []
     for filename in filenames:
         datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
         #datapath = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
         # Load data and filter acceleration signals with a butterworth filter
-        data = data_manager.load_data(filename, datapath)
+        #data = data_manager.load(filename, datapath)
+        data = data_manager.load_data_gps(filename, datapath)
         data.filter_accelerations(4, 0.4)
         all_data.append(data)
         print("Data loaded: "+filename)
     
     ### Load previously created acceleration segments
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
-    #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"    
+    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS\\"
+    #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
+    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+    
+
     all_segments = data_manager.load_all_segments(path, sigma, w)
+    #all_segments = np.load(path+"allsegments_gps.npy", allow_pickle = True)
     for data in all_data:
         for segment in all_segments:
             if segment.filename == data.filename:
                 segment.setup_acceleration(data)
-                
+                #segment.setup_gps_data(data)
+                #segment.setup_timestamp(data)
+    print("Segments loaded.")
+    
     ### Prepare segments to compute max correlation
     i = 0
     segments_ax, segments_ay, segments_az = [], [], []

@@ -10,6 +10,9 @@ class data():
         self.az = az
         
         self.pressure = None
+        self.timestamp = None
+        self.latitude = None
+        self.longitude = None
         
     ### Filter acceleration signals using a Butterworth filter.   
     def filter_accelerations(self, N, Wn):

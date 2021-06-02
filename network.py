@@ -3,6 +3,11 @@ import scipy.linalg
 from sklearn.linear_model import LinearRegression,LogisticRegression
 import sklearn.neighbors as sklnn
 
+'''
+Original code by Arnau Naval (https://github.com/ArnauNaval/TFG_ReservoirComputing).
+Adapted in order to use accelerometry segments as input.
+'''
+
 class Network():
     def __init__(self, T = None, n_min = None, K = None, N = None, L = None, W_in = None, W = None, W_back = None, W_out = None): 
         
@@ -142,7 +147,7 @@ class Network():
             regressor.fit(self.mean_train_matrix.T, labels)
 
         elif classifier == 'log':
-            regressor = LogisticRegression(max_iter = 10000000000)
+            regressor = LogisticRegression(max_iter = 100000000000000000000000000)
             regressor.fit(self.mean_train_matrix.T, labels.T)
 
         elif classifier == '1nn':

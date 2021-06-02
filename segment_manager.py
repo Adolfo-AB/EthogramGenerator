@@ -433,7 +433,7 @@ class segment_manager():
     
     ### Save N most common behaviors.
     def save_most_common_behaviors(self, groups, N):
-        temp_groups = copy.deepcopy(groups)
+        temp_groups = copy.copy(groups)
         temp_groups = sorted(temp_groups, key=lambda group: len(group))
         #temp_groups.sort(key=lambda group: len(group))
 
@@ -462,7 +462,7 @@ class segment_manager():
         print("Total number of groups after processing: "+str(number_of_groups))
         
         ### Compute mean correlation coefficient (only takes account groups with size > 1)
-        temp_groups = copy.deepcopy(groups)
+        temp_groups = copy.copy(groups)
         corr_coefs = []
         for group in temp_groups:
             group_segment_sizes = []
@@ -512,13 +512,13 @@ class segment_manager():
                 avrg_group_pressure.append(np.mean(group_pressure, axis = 0))
                           
         if mode == "nanmean":
-            temp_groups = copy.deepcopy(groups)
+            temp_groups = copy.copy(groups)
             temp_groups_2 = []
             for group in temp_groups:
                 temp_group = []
                 group.sort(key=lambda segment: len(segment.ax))
                 len_grp = len(group)
-                for i in range(int(0.85*len_grp)):
+                for i in range(int(0.8*len_grp)):
                     temp_group.append(group[i])
                 temp_groups_2.append(temp_group)
                     

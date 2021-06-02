@@ -13,6 +13,35 @@ def group_segments(input_segments, corr_ax, corr_ay, corr_az, threshold_ax, thre
     
     ### Take one segment e1, if the next one has a correlation higher than threshold, we put them into a separate list. 
     ### Repeat until there are no more segments with correlation higher than threshold for e1.
+    
+    similar_segments = []       
+    i = 0
+    while i < len(segments):
+        current_segment = segments[i]
+        temp_similar_segments = [current_segment]
+        segments.remove(segments[i])
+        
+        j = i+1
+        while j < len(segments):
+            next_segment = segments[j]
+            c_ax = corr_ax[current_segment.id, next_segment.id]
+            c_ay = corr_ay[current_segment.id, next_segment.id]
+            c_az = corr_az[current_segment.id, next_segment.id]
+            
+            if float(c_ax) >= threshold_ax and float(c_ay) >= threshold_ay and float(c_az) >= threshold_az:
+                temp_similar_segments.append(next_segment)
+                segments.remove(segments[j])
+                j = i+1
+            else:
+                j = j+1
+                    
+        else:
+            similar_segments.append(temp_similar_segments)
+            i = i+1
+            
+        
+  
+    '''
     similar_segments = []
     i = 0
     while i < len(segments):
@@ -36,23 +65,29 @@ def group_segments(input_segments, corr_ax, corr_ay, corr_az, threshold_ax, thre
         else:
             similar_segments.append(temp_similar_segments)
             i = i+1
-        
-    return similar_segments    
+            ''' 
+            
+    return similar_segments 
 
 if __name__ == "__main__":
     start_time = time.time()
 
     ### Initialize data_manager and segment_manager    
-    sigma = 4
-    w = 50
+    sigma = 8
+    w = 100
     mode = "mean"
     segment_manager = segment_manager.segment_manager(sigma, w, mode)
     data_manager = data_manager.data_manager()
     
     ### Load previously created acceleration segments
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
+    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS\\"
+    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping2\\"
+    
     #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"    
     all_segments = data_manager.load_all_segments(path, sigma, w)
+    #all_segments = list(np.load(path+"allsegments_gps.npy", allow_pickle = True))
+    print("Number of events: "+str(len(all_segments)))
     
     ### Load correlation data
     maxcorr_ax = np.load(path+"maxcorr_ax.npy")
@@ -61,14 +96,15 @@ if __name__ == "__main__":
     lag_ax = np.load(path+"lag_ax.npy")
     
     ### Call the group_segments function
-    threshold_ax = 0.3
+    threshold_ax = 0.275
     threshold_ay = 0
-    threshold_az = 0.3
+    threshold_az = 0.275
     input_segments = copy.copy(all_segments)
-    random.shuffle(input_segments)
+    #random.shuffle(input_segments)
     groups_raw = group_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
     
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
+    print("Number of raw groups: "+str(len(groups_raw)))
+    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
     np.save(os.path.join(path, 'groups_raw.npy'), groups_raw)
     
     finish_time = time.time()
