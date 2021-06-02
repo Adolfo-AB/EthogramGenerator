@@ -96,11 +96,11 @@ if __name__ == "__main__":
     lag_ax = np.load(path+"lag_ax.npy")
     
     ### Call the group_segments function
-    threshold_ax = 0.275
+    threshold_ax = 0.3
     threshold_ay = 0
-    threshold_az = 0.275
+    threshold_az = 0.2
     input_segments = copy.copy(all_segments)
-    #random.shuffle(input_segments)
+    random.shuffle(input_segments)
     groups_raw = group_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
     
     print("Number of raw groups: "+str(len(groups_raw)))

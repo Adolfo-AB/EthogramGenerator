@@ -798,10 +798,10 @@ import copy
 import network as Network
 
 Network = Network.Network()
-num_nodes = 300
+num_nodes = 100
 
-input_probability = 0.5
-reservoir_probability = 0.5
+input_probability = 0.3
+reservoir_probability = 0.3
 classifier = "log"
 
 Network.T = sum(len_segments_train)  
