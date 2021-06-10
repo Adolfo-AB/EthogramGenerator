@@ -4,6 +4,8 @@ import data as dt
 import numpy as np
 import pandas as pd
 import segment as sgmnt
+from scipy import signal
+
 
 class data_manager():
     def __init__(self):
@@ -57,6 +59,43 @@ class data_manager():
             
         data.timestamp = datetimes
         '''   
+        return data
+    
+    ### Load acceleration data including pressure, latitude, longitude and timestamp
+    def load_data_gps_timestamp(self, filename, path):
+        try:
+            data_pd = pd.read_csv(path + filename + '.csv', header=0, sep=';')
+            accelerations = data_pd.loc[:, ['X', 'Y', 'Z']].values
+        except:
+            data_pd = pd.read_csv(path + filename + '.csv', header=0)
+            accelerations = data_pd.loc[:, ['X', 'Y', 'Z']].values
+            
+        data = dt.data(filename, accelerations[:,0], accelerations[:,1], accelerations[:,2])
+        
+        data.pressure = np.array(data_pd.loc[:, ['Pressure']].values)
+        
+        latitude = data_pd.loc[:, ['location-lat']].values
+        longitude = data_pd.loc[:, ['location-lon']].values
+        data.latitude = np.array(latitude)
+        data.longitude = np.array(longitude)
+        
+        try:
+            datetime_format = "%d/%m/%Y %H:%M:%S.%f"
+            temp_datetimes = data_pd.loc[:, ['Timestamp']].values
+            datetimes = []
+            for dtime in temp_datetimes:
+                dtime = datetime.datetime.strptime(dtime[0], datetime_format)
+                datetimes.append(dtime)
+        except:
+            datetime_format = "%d-%m-%Y %H:%M:%S.%f"
+            temp_datetimes = data_pd.loc[:, ['Timestamp']].values
+            datetimes = []
+            for dtime in temp_datetimes:
+                dtime = datetime.datetime.strptime(dtime[0], datetime_format)
+                datetimes.append(dtime)
+            
+        data.timestamp = datetimes
+           
         return data
     
     def load_data_datetimes(self, filename, path):
@@ -200,3 +239,21 @@ class data_manager():
             writer.writerow(fields)
             for segment in segments:
                 writer.writerow([segment.id, segment.start, segment.end, segment.axis, segment.filename])
+                
+                
+    def interpolate_gps_data(self, data):
+        longitude, latitude = data.longitude, data.latitude
+        
+        length = len(data.latitude)
+        result_longitude, result_latitude = np.zeros(length), np.zeros(length)        
+        first_nonzero_lon, first_nonzero_lat = int((longitude!=0).argmax(axis=0)), int((latitude!=0).argmax(axis=0))
+        longitude, latitude = longitude[first_nonzero_lon::25], latitude[first_nonzero_lat::25]
+        
+        t = np.arange(0, length, 25)
+        longitude = signal.resample(longitude, length-first_nonzero_lon, t)
+        latitude = signal.resample(latitude, length-first_nonzero_lat, t)
+        
+        result_longitude[first_nonzero_lon:len(result_longitude)] = longitude[0].ravel()
+        result_latitude[first_nonzero_lat:len(result_latitude)] = latitude[0].ravel()
+        
+        return result_longitude, result_latitude

@@ -14,8 +14,8 @@ start_time = time.time()
 ### Initialize data_managerager class.
 
 ### Initialize with sigma, w and mode (rest or mean).
-sigma = 6
-w = 30
+sigma = 3
+w = 50
 mode = "mean"
 segment_manager = segment_manager.segment_manager(sigma, w, mode)
 data_manager = data_manager.data_manager()
@@ -24,8 +24,7 @@ all_data = []
 all_segments = []
 
 ### Define the names of the datasets that we will use
-filenames = ['8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1']
-
+filenames = ['8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
 ### Detect events for a given datasets
 for filename in filenames:
     
@@ -33,7 +32,7 @@ for filename in filenames:
     #path = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
     
     # Load data and filter acceleration signals with a butterworth filter
-    initial_data = data_manager.load_data_gps(filename, path)
+    initial_data = data_manager.load_data_gps_timestamp(filename, path)
     current_data = copy.deepcopy(initial_data)
     current_data.filter_accelerations(4, 0.4)
     all_data.append(current_data)
@@ -110,14 +109,16 @@ for filename in filenames:
 
 output_segments = []
 for segment in all_segments:
-    if len(segment.axis) > 1:
+    if len(segment.axis) > 0:
         output_segments.append(segment)
+
+
 i = 0
 for segment in output_segments:
     segment.id = i
     i += 1
     
-path_gps = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS\\"
+path_gps = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_4\\"
 np.save(os.path.join(path_gps, 'allsegments_gps.npy'), output_segments)
 np.save(os.path.join(path_gps, 'alldata_gps.npy'), all_data)        
 
@@ -216,6 +217,7 @@ for data in all_data:
             segment.min_ay, segment.max_ay = min_ay, max_ay
             segment.min_az, segment.max_az = min_az, max_az
             segment.min_pressure, segment.max_pressure = min_pressure, max_pressure
+
 
 #%% Cell 3.1: Plot some of the segments.
 from matplotlib import pyplot as plt
@@ -317,20 +319,15 @@ threshold_az = 0.3
 input_segments = copy.copy(all_segments)
 groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
 '''
-segment_manager = segment_manager.segment_manager(4, 50)
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS\\"
+segment_manager = segment_manager.segment_manager(8, 50)
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
 all_data = np.load(path+"alldata_gps.npy", allow_pickle = True)
 lag_ax = np.load(path+"lag_ax.npy")
 
 groups_raw = np.load(path+"groups_raw.npy", allow_pickle = True)
-'''
-### Discard smaller groups
-min_group_size = 30
-groups = segment_manager.remove_small_groups(groups_raw, min_group_size)
-'''
 
 ### Save N most common behaviors
-N = 25
+N = 30
 groups = segment_manager.save_most_common_behaviors(groups_raw, N)
 
 ### Align segments from the same group
@@ -341,7 +338,7 @@ for data in all_data:
         for segment in group:
             if segment.filename == data.filename:
                 segment.setup_acceleration(data)
-                #segment.setup_gps_data(data)
+                segment.setup_gps_data(data)
                 #segment.setup_timestamp(data)
 
 ### Find some group metrics
@@ -385,104 +382,66 @@ for i in range(len(groups)):
     
     
     fig, ax = plt.subplots(4,2,figsize = (16,12))
-    ax[0,1].plot(avrg_group_ax[i], 'b-')
+    ax[0,1].plot(avrg_group_ax[i], 'lightseagreen')
     ax[0,1].set_ylim([min_ax-1, max_ax+1])
-    ax[1,1].plot(avrg_group_ay[i], 'g-')
+    ax[1,1].plot(avrg_group_ay[i], 'coral')
     ax[1,1].set_ylim([min_ay-1, max_ay+1])
-    ax[2,1].plot(avrg_group_az[i], 'r-')
+    ax[2,1].plot(avrg_group_az[i], 'olive')
     ax[2,1].set_ylim([min_az-1, max_az+1])
-    ax[3,1].plot(avrg_group_pressure[i], 'm-')
+    
+    ax[3,1].plot(avrg_group_pressure[i], 'sienna')
     ax[3,1].set_ylim([min_pressure-10, max_pressure+10])
     ax[3,1].set_xlabel('number of samples')
     
+    
     j = 0
     for segment in groups[i]:
-        ax[0,0].plot(segment.ax[:len(avrg_group_ax[i])], c=cmap1(j), lw=0.1)
+        ax[0,0].plot(segment.ax[:len(avrg_group_ax[i])], c='lightseagreen', lw=1, alpha = 0.3)
         ax[0,0].set_ylim([-9, 9])
         ax[0,0].set_ylabel("ax")
-        ax[1,0].plot(segment.ay[:len(avrg_group_ax[i])], c=cmap2(j), lw=0.1)
+        ax[1,0].plot(segment.ay[:len(avrg_group_ax[i])], c='coral', lw=1, alpha = 0.3)
         ax[1,0].set_ylim([-9, 9])
         ax[1,0].set_ylabel("ay")
-        ax[2,0].plot(segment.az[:len(avrg_group_ax[i])], c=cmap3(j), lw=0.1)
+        ax[2,0].plot(segment.az[:len(avrg_group_ax[i])], c='olive', lw=1, alpha = 0.3)
         ax[2,0].set_ylim([-9, 9])
         ax[2,0].set_ylabel("az")
-        ax[3,0].plot(segment.pressure[:len(avrg_group_ax[i])], c=cmap4(j), lw=0.1)
+        
+        
+        ax[3,0].plot(segment.pressure[:len(avrg_group_ax[i])], c='sienna', lw=1, alpha = 0.3)
         ax[3,0].set_ylim([950, 1250])
         ax[3,0].set_ylabel("pressure")
         ax[3,0].set_xlabel('number of samples')
+        
         j += 1
     
     fig.suptitle(f'All segments and avrg segment from group {i}, group size: {str(len(groups[i]))}', y = 0.9)
     plt.show()
-    
-#%% Cell 7: Plot GPS data.
-import numpy as np
-import cartopy
-import cartopy.crs as crs
-import cartopy.feature as cfeature
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 
-for data in all_data:
-    for segment in groups[2]:
-        if segment.filename == data.filename:
-            segment.setup_gps_data(data)
 
-# setup Lambert Conformal basemap.
-# set resolution=None to skip processing of boundary datasets.
-max_lats, max_longs = [], []
-min_lats, min_longs = [], []
-
-for data in all_data:
-    max_lats.append(max(data.latitude[np.nonzero(data.latitude)]))
-    min_lats.append(min(data.latitude[np.nonzero(data.latitude)]))
-    max_longs.append(max(data.longitude[np.nonzero(data.longitude)]))
-    min_longs.append(min(data.longitude[np.nonzero(data.longitude)]))
-    
-min_lat, min_long = min(min_lats)-0.25, min(min_longs)-0.25
-max_lat, max_long = max(max_lats)+0.25, max(max_longs)+0.25
-
-BBox = [-28.037, -20.786, 12.715, 17.545]
-colors = ["r", "b", "g", "m"]     
-
-map_img = plt.imread('D:\AdolfoAB\cobas_infinity_3.02\map.png')
-
-fig, ax = plt.subplots(figsize = (16,14))
-ax.set_title('Tropicbird GPS data')
-
-for i in range(len(all_data)):
-    latitude = all_data[i].latitude[np.nonzero(all_data[i].latitude)]
-    longitude = all_data[i].longitude[np.nonzero(all_data[i].longitude)]
-    ax.plot(longitude, latitude, c = colors[i])
-
-for segment in groups[2]:
-    ax.scatter(segment.longitude, segment.latitude, c = "k")
- 
-ax.set_xlim(BBox[0],BBox[1])
-ax.set_ylim(BBox[2],BBox[3])
-ax.set_xlabel("Longitude")
-ax.set_ylabel("Latitude")
-ax.imshow(map_img, zorder=0, extent = BBox, aspect= 'equal')
-plt.show()
-
-# draw a land-sea mask for a map background.
-# lakes=True means plot inland lakes with ocean color.
-#m.drawlsmask(land_color='coral',ocean_color='aqua',lakes=True)
-#plt.show()
-
-#%%
+#%% Plot GPS data with cartopy library
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
+import data_manager
+import time
+import numpy as np
 
+start_time = time.time()
+
+data_manager = data_manager.data_manager()
+
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
+all_data = np.load(path+"alldata_gps.npy", allow_pickle = True)
+all_data[0].longitude, all_data[0].latitude = data_manager.interpolate_gps_data(all_data[0])
+
+current_groups = [groups[0], groups[9]]
 
 for data in all_data:
-    for segment in groups[2]:
-        if segment.filename == data.filename:
-            segment.setup_gps_data(data)
+    for group in current_groups:
+        for segment in group:
+            if segment.filename == data.filename:
+                segment.setup_gps_data(data)
 
-# setup Lambert Conformal basemap.
-# set resolution=None to skip processing of boundary datasets.
 max_lats, max_longs = [], []
 min_lats, min_longs = [], []
 
@@ -495,7 +454,6 @@ for data in all_data:
 min_lat, min_long = min(min_lats)-0.25, min(min_longs)-0.25
 max_lat, max_long = max(max_lats)+0.25, max(max_longs)+0.25
 
-colors = ["r", "b", "g", "m"]     
 # Create a Stamen terrain background instance.
 stamen_terrain = cimgt.Stamen('terrain')
 
@@ -504,7 +462,9 @@ fig = plt.figure(figsize = (32,24))
 # Create a GeoAxes in the tile's projection.
 ax = fig.add_subplot(1, 1, 1, projection=stamen_terrain.crs)
 
-BBox = [-28.037, -20.786, 12.715, 17.545]
+#BBox = [-28.037, -20.786, 12.715, 17.545]
+BBox = [min_long, max_long, min_lat, max_lat]
+colors = ["gold", "orange", "darkolivegreen", "limegreen"]     
 
 #BBox = [-24.7331, -24.5983, 14.9359, 15.0114]
 # Limit the extent of the map to a small longitude/latitude range.
@@ -518,10 +478,141 @@ for i in range(len(all_data)):
     longitude = all_data[i].longitude[np.nonzero(all_data[i].longitude)]
     #plt.plot(longitude, latitude, c = colors[i])
     plt.plot(longitude, latitude,
-         color='blue', linewidth=2,
+         color='k', ls=':',
          transform=ccrs.PlateCarree())
     
-
+    i = 0
+    for group in current_groups:
+        for segment in group:
+            lat = segment.latitude[0]
+            lon = segment.longitude[0]
+            size = len(segment.ax)
+            plt.scatter(lon, lat, s=size*2, color=colors[i],transform=ccrs.PlateCarree())
+        i = i+1
+            
 plt.show()
 
+finish_time = time.time()
+total_time = finish_time - start_time
+print("Computing time:",total_time, "seconds.")
 
+
+#%% Plot timestamp histogram
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.io.img_tiles as cimgt
+import data_manager
+import time
+import numpy as np
+
+start_time = time.time()
+
+segment_hours = []
+current_group = groups[9]
+
+for data in all_data:
+    for segment in current_group:
+        if segment.filename == data.filename:
+            segment.setup_timestamp(data)
+
+for segment in current_group:
+    segment_hours.append(segment.timestamp[0].hour)
+    
+### Plot segment length histogram
+bins = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+hist, bin_edges = np.histogram(segment_hours)
+
+fig, ax = plt.subplots(1,1,figsize = (8,6))
+ax.title.set_text("Timestamp histogram of flying group 9")
+ax.hist(segment_hours, bins=bins, log=False, color = 'lightseagreen')
+ax.set_ylabel('Number of segments')
+ax.grid(True)
+ax.set_xlabel('Hours')
+plt.xticks(bins)
+    
+finish_time = time.time()
+total_time = finish_time - start_time
+print("Computing time:",total_time, "seconds.")
+
+
+#%%% Plot GPS data with folium library
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.io.img_tiles as cimgt
+import data_manager
+import time
+import numpy as np
+import folium
+from scipy import signal
+
+start_time = time.time()
+
+
+data_manager = data_manager.data_manager()
+
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
+all_data = np.load(path+"alldata_gps.npy", allow_pickle = True)
+all_data[0].longitude, all_data[0].latitude = data_manager.interpolate_gps_data(all_data[0])
+
+current_groups = [groups[0], groups[9]]
+
+for data in all_data:
+    for group in current_groups:
+        for segment in group:
+            if segment.filename == data.filename:
+                segment.setup_gps_data(data)
+
+# setup Lambert Conformal basemap.
+# set resolution=None to skip processing of boundary datasets.
+max_lats, max_longs = [], []
+min_lats, min_longs = [], []
+
+for data in all_data:
+    max_lats.append(max(data.latitude[np.nonzero(data.latitude)]))
+    min_lats.append(min(data.latitude[np.nonzero(data.latitude)]))
+    max_longs.append(max(data.longitude[np.nonzero(data.longitude)]))
+    min_longs.append(min(data.longitude[np.nonzero(data.longitude)]))
+    
+min_lat, min_long = min(min_lats)-0.25, min(min_longs)-0.25
+max_lat, max_long = max(max_lats)+0.25, max(max_longs)+0.25
+
+
+latitude = all_data[0].latitude[np.nonzero(all_data[0].latitude)]
+longitude = all_data[0].longitude[np.nonzero(all_data[0].longitude)]
+
+latitude = latitude[::100]
+longitude = longitude[::100]
+
+print("resample finish.")
+#BBox = [-28.037, -20.786, 12.715, 17.545]
+BBox = [min_long, max_long, min_lat, max_lat]
+colors = ["gold", "orange", "darkolivegreen", "limegreen"]     
+
+m = folium.Map(location=[max_lat, min_long], tiles="Stamen Terrain")
+m.fit_bounds([[min_lat, min_long], [max_lat, max_long]])
+points = []
+for data in all_data:
+    for i in range(len(latitude)):
+        points.append((latitude[i], longitude[i]))
+folium.PolyLine(points).add_to(m)    
+j = 0
+for group in current_groups:
+    for segment in group:
+        lat = segment.latitude[0]
+        lon = segment.longitude[0]
+        if len(segment.ax)<500:
+            segment_radius = len(segment.ax)
+        else:
+            segment_radius = 500
+            
+        folium.Circle(
+            radius=segment_radius**1.3,
+            location=[lat, lon],
+            color=colors[j],
+            fill=True,
+        ).add_to(m)
+    j = j+1
+    
+print("points finish")
+print("chivatillo")
+m.save("mymap.html")

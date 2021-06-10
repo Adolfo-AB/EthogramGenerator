@@ -33,7 +33,7 @@ def compute_max_corr_parallel(segments):
     output = []
     compute_max_corr_1segment_partial = partial(compute_max_corr_1segment, segments = segments)
     
-    pool = multiprocessing.Pool(processes = 7)
+    pool = multiprocessing.Pool(processes = 14)
     o = pool.map_async(compute_max_corr_1segment_partial, segments).get()
 
     output.append(o)
@@ -64,24 +64,13 @@ if __name__ == "__main__":
 
     ### Initialize data_manager and segment_manager    
     sigma = 8
-    w = 100
+    w = 50
     mode = "mean"
     segment_manager = segment_manager.segment_manager(sigma, w, mode)
     data_manager = data_manager.data_manager()
     
     ### Load acceleration data
-    filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
-                '7501709_PHAAET_rec18112018_PRincon_S1',
-                '7501755_PHAAET_rec27112018_PRincon_S1', 
-                '8200163_PHAAET_rec14052019_PRoque_S1',
-                '8200445_PHAAET_rec290422019_PRincon_S1',
-                '8200473_PHAAET_rec24052019_PRincon_S2',
-                '8200487_PHAAET_rec04052019_PRincon_S1',
-                '8200718_PHAAET_rec08032019_PRincon',
-                '8201653_PHAAET_I.Cima_rec21012021_ninho 39_36_S1',
-                '8201667_PHAAET_I.Cima_rec21012021_ninho 68_21_S1',
-                '8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1',
-                '8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
+    filenames = ['8201720_PHAAET_rec31122020_ICima_ninho 71_21_S1']
     
     all_data = []
     for filename in filenames:
@@ -95,13 +84,13 @@ if __name__ == "__main__":
         print("Data loaded: "+filename)
     
     ### Load previously created acceleration segments
-    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS\\"
+    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_3\\"
     #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021_2\\"
     
 
-    all_segments = data_manager.load_all_segments(path, sigma, w)
-    #all_segments = np.load(path+"allsegments_gps.npy", allow_pickle = True)
+    #all_segments = data_manager.load_all_segments(path, sigma, w)
+    all_segments = np.load(path+"allsegments_gps.npy", allow_pickle = True)
     for data in all_data:
         for segment in all_segments:
             if segment.filename == data.filename:

@@ -13,8 +13,8 @@ start_time = time.time()
 ### Initialize data_managerager class.
 
 ### Initialize with sigma, w and mode (rest or mean).
-sigma = 8
-w = 100
+sigma = 4
+w = 50
 mode = "mean"
 segment_manager = segment_manager.segment_manager(sigma, w, mode)
 data_manager = data_manager.data_manager()
@@ -104,18 +104,18 @@ for filename in filenames:
     if number_of_errors > 0:
         print("Some of the initial segments is not inside a final segment. Number of errors: "+str(number_of_errors))
     '''
-    
+    '''
     ### Remove segments shorter than threshold.
     min_segment_size = 25
     current_segments = segment_manager.remove_short_segments(current_segments, min_segment_size)
     print("Number of segments after removing short evernts: "+str(len(current_segments)))
-    
+    '''
     ### Add segment id to each segment.
     for segment in current_segments:
         segment.id = current_segments.index(segment)
     
     ### Export segments from filename to CSV
-    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021_2\\"
     #export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
     data_manager.export_segments(current_segments, sigma, w, filename, export_path)
     print("Segments successfully exported to .csv.")
@@ -202,7 +202,7 @@ for segment in all_segments:
     i = i+1
 
 ### Export all segments to CSV
-export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021_2\\"
 #export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
 
 data_manager.export_all_segments(all_segments, sigma, w, export_path)
@@ -467,8 +467,8 @@ import data_manager
 
 data_manager = data_manager.data_manager()
 ### Load acceleration data
-sigma = 8
-w = 100
+sigma = 10
+w = 50
 filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
             '7501709_PHAAET_rec18112018_PRincon_S1',
             '7501755_PHAAET_rec27112018_PRincon_S1', 
@@ -492,7 +492,7 @@ for filename in filenames:
     all_data.append(data)
     print("Data loaded: "+filename)
 
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021\\"
 np.save(os.path.join(path, 'all_data.npy'), all_data)
 
 #%% Cell 6: Group segments based on max correlation, remove groups smaller than a threshold
@@ -518,14 +518,14 @@ input_segments = copy.copy(all_segments)
 groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
 '''
 
-segment_manager = segment_manager.segment_manager(8, 100)
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+segment_manager = segment_manager.segment_manager(4, 50)
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021_2\\"
 all_data = np.load(path+"all_data.npy", allow_pickle = True)
 lag_ax = np.load(path+"lag_ax.npy")
 
-path2 = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_01062021\\"
+path2 = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021_2\\"
 groups_raw = np.load(path2+"groups_raw.npy", allow_pickle = True)
-
+    
 '''
 ### Discard smaller groups
 min_group_size = 30
@@ -533,7 +533,7 @@ groups = segment_manager.remove_small_groups(groups_raw, min_group_size)
 '''
 
 ### Save N most common behaviors
-N = 10
+N = 7
 groups = segment_manager.save_most_common_behaviors(groups_raw, N)
 
 ### Align segments from the same group
@@ -564,7 +564,54 @@ finish_time = time.time()
 total_time = finish_time - start_time
 print("Computing time:",total_time, "seconds.")
 
+#%% Cell 6.1: Check the number of groups with more than 100 elements and
+# the percentage of segments that end up in the smaller groups with less than 100 elements.
+import copy
+import time
+import numpy as np
+import segment_manager
+start_time = time.time()
+
+'''
+If the number of segments is too big, it is recommended to create the groups by running "group_segments.py" from cmd. 
+If the number of segments is small (e.g smaller than 15k segments) and you want to create the groups here, uncomment the next block of code.
+'''
+
+'''
+### Group segments
+segment_manager = segment_manager.segment_manager(sigma, w)
+threshold_ax = 0.3
+threshold_ay = 0
+threshold_az = 0.3
+input_segments = copy.copy(all_segments)
+groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
+'''
+
+segment_manager = segment_manager.segment_manager(4, 50)
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
+
+path2 = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
+groups_raw = np.load(path2+"groups_raw.npy", allow_pickle = True)
+    
+
+plus100 = 0
+total_segments = 0
+for group in groups_raw:
+    if len(group) >= 100:
+        plus100 = plus100+1
+        total_segments = total_segments+len(group)
+        
+percentage = 100-(total_segments/20813)*100
+print("Number of groups with moer than 100 elements: "+str(plus100))
+print("Percentage of segments out of these groups: "+str(percentage))
+    
+finish_time = time.time()
+total_time = finish_time - start_time
+print("Computing time:",total_time, "seconds.")
+
+    
 #%% Cell 7: Plot all the segments and average behavior from each group.
+from matplotlib import colors as mcolors
 from matplotlib import pyplot as plt
 
 def get_cmap(n, name='YlOrRd'):
@@ -572,50 +619,100 @@ def get_cmap(n, name='YlOrRd'):
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
     return plt.cm.get_cmap(name, n)
 
+def hex_to_rgb(value):
+    '''
+    Converts hex to rgb colours
+    value: string of 6 characters representing a hex colour.
+    Returns: list length 3 of RGB values'''
+    value = value.strip("#") # removes hash symbol if present
+    lv = len(value)
+    return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+
+
+def rgb_to_dec(value):
+    '''
+    Converts rgb to decimal colours (i.e. divides each value by 256)
+    value: list (length 3) of RGB values
+    Returns: list (length 3) of decimal values'''
+    return [v/256 for v in value]
+
+def get_continuous_cmap(hex_list, float_list=None,):
+    ''' creates and returns a color map that can be used in heat map figures.
+        If float_list is not provided, colour map graduates linearly between each color in hex_list.
+        If float_list is provided, each color in hex_list is mapped to the respective location in float_list. 
+        
+        Parameters
+        ----------
+        hex_list: list of hex code strings
+        float_list: list of floats between 0 and 1, same length as hex_list. Must start with 0 and end with 1.
+        
+        Returns
+        ----------
+        colour map'''
+    rgb_list = [rgb_to_dec(hex_to_rgb(i)) for i in hex_list]
+    if float_list:
+        pass
+    else:
+        float_list = list(np.linspace(0,1,len(rgb_list)))
+        
+    cdict = dict()
+    for num, col in enumerate(['red', 'green', 'blue']):
+        col_list = [[float_list[i], rgb_list[i][num], rgb_list[i][num]] for i in range(len(float_list))]
+        cdict[col] = col_list
+    cmp = mcolors.LinearSegmentedColormap("my_cmap", segmentdata=cdict, N=256)
+    return cmp
+
+for group in groups:
+    group = sorted(group, key=lambda segment: len(segment.ax))
+
+hex_list1 = ['#005e97', '#176f9e', '#3080a4', '#4890a9', '#60a1ad', '#78b1b1', '#92c1b4', '#acd1b7', '#c7e0b9', '#e2f0ba', '#ffffbb', '#e2f0ba', '#c7e0b9', '#acd1b7', '#92c1b4', '#78b1b1', '#60a1ad', '#4890a9', '#3080a4', '#176f9e', '#005e97']
+hex_list2 = ['#d90000', '#e23713', '#ea5325', '#f26b36', '#f88148', '#fd975a', '#ffac6c', '#ffc280', '#ffd794', '#ffeba7', '#ffffbb', '#ffeba7', '#ffd794', '#ffc280', '#ffac6c', '#fd975a', '#f88148', '#f26b36', '#ea5325', '#e23713', '#d90000']
+hex_list3 = ['#004a00', '#185c06', '#306e14', '#478025', '#5f9237', '#78a44a', '#92b65e', '#acc874', '#c7da8b', '#e3eda2', '#ffffbb', '#e3eda2', '#c7da8b', '#acc874', '#92b65e', '#78a44a', '#5f9237', '#478025', '#306e14', '#185c06', '#004a00']
 num_segments = 10000
+
 for i in range(len(groups)):
-    cmap1 = get_cmap(len(groups[i]), "YlGnBu")
-    cmap2 = get_cmap(len(groups[i]), "PuBuGn")
-    cmap3 = get_cmap(len(groups[i]), "YlOrRd")
-    cmap4 = get_cmap(len(groups[i]), "PuRd")
+    cmap11 = get_continuous_cmap(hex_list1)
+    cmap22 = get_continuous_cmap(hex_list2)
+    cmap33 = get_continuous_cmap(hex_list3)
+    
+    plt.cm.register_cmap("cmap1", cmap11)
+    plt.cm.register_cmap("cmap2", cmap22)
+    plt.cm.register_cmap("cmap3", cmap33)
+    
+    cmap1 = get_cmap(len(groups[i]), "cmap1")
+    cmap2 = get_cmap(len(groups[i]), "cmap2")
+    cmap3 = get_cmap(len(groups[i]), "cmap3")
     
     max_ax, min_ax = max(avrg_group_ax[i]), min(avrg_group_ax[i])
     max_ay, min_ay = max(avrg_group_ay[i]), min(avrg_group_ay[i])
     max_az, min_az = max(avrg_group_az[i]), min(avrg_group_az[i])
-    max_pressure, min_pressure = max(avrg_group_pressure[i]), min(avrg_group_pressure[i])
     
     
-    fig, ax = plt.subplots(4,2,figsize = (16,12))
-    ax[0,1].plot(avrg_group_ax[i], 'b-')
+    fig, ax = plt.subplots(3,2,figsize = (16,12))
+    ax[0,1].plot(avrg_group_ax[i], 'lightseagreen')
     ax[0,1].set_ylim([min_ax-1, max_ax+1])
-    ax[1,1].plot(avrg_group_ay[i], 'g-')
+    ax[1,1].plot(avrg_group_ay[i], 'coral')
     ax[1,1].set_ylim([min_ay-1, max_ay+1])
-    ax[2,1].plot(avrg_group_az[i], 'r-')
+    ax[2,1].plot(avrg_group_az[i], 'olive')
     ax[2,1].set_ylim([min_az-1, max_az+1])
-    ax[3,1].plot(avrg_group_pressure[i], 'm-')
-    ax[3,1].set_ylim([min_pressure-10, max_pressure+10])
-    ax[3,1].set_xlabel('number of samples')
     
     j = 0
     for segment in groups[i]:
-        ax[0,0].plot(segment.ax[:len(avrg_group_ax[i])], c=cmap1(j), lw=0.1)
+        ax[0,0].plot(segment.ax[:len(avrg_group_ax[i])], c=cmap1(j), lw=0.3, alpha = 0.3)
         ax[0,0].set_ylim([-9, 9])
         ax[0,0].set_ylabel("ax")
-        ax[1,0].plot(segment.ay[:len(avrg_group_ax[i])], c=cmap2(j), lw=0.1)
+        ax[1,0].plot(segment.ay[:len(avrg_group_ax[i])], c=cmap2(j), lw=0.3, alpha = 0.3)
         ax[1,0].set_ylim([-9, 9])
         ax[1,0].set_ylabel("ay")
-        ax[2,0].plot(segment.az[:len(avrg_group_ax[i])], c=cmap3(j), lw=0.1)
+        ax[2,0].plot(segment.az[:len(avrg_group_ax[i])], c=cmap3(j), lw=0.3, alpha = 0.3)
         ax[2,0].set_ylim([-9, 9])
         ax[2,0].set_ylabel("az")
-        ax[3,0].plot(segment.pressure[:len(avrg_group_ax[i])], c=cmap4(j), lw=0.1)
-        ax[3,0].set_ylim([950, 1250])
-        ax[3,0].set_ylabel("pressure")
-        ax[3,0].set_xlabel('number of samples')
+        
         j += 1
     
     fig.suptitle(f'All segments and avrg segment from group {i}, group size: {str(len(groups[i]))}', y = 0.9)
     plt.show()
-
+    
 #%% Cell 8: Cross-validation 1. Create train and test data for Reservoir Computing (80% train, 20% test).
 import copy
 import tsaug
@@ -636,7 +733,7 @@ segments_train, segments_test = [], []
 
 num_groups = len(groups)
 max_group_length = int(max([len(group) for group in groups[1:len(groups)-1]]))
-#max_group_length = 6000
+#max_group_length = len(groups[0])
 
 num_segments_train_pergroup = int(0.8*max_group_length)
 num_segments_test_pergroup = max_group_length - num_segments_train_pergroup
@@ -655,9 +752,9 @@ for group in temp_groups:
         try:
             current_segment = copy.copy(random.choice(group))
             
-            csa_ax = tsaug.AddNoise(scale=0.035).augment(current_segment.ax)
-            csa_ay = tsaug.AddNoise(scale=0.035).augment(current_segment.ay)
-            csa_az = tsaug.AddNoise(scale=0.035).augment(current_segment.az)
+            csa_ax = tsaug.AddNoise(scale=0.025).augment(current_segment.ax)
+            csa_ay = tsaug.AddNoise(scale=0.025).augment(current_segment.ay)
+            csa_az = tsaug.AddNoise(scale=0.025).augment(current_segment.az)
                 
             current_segment.ax, current_segment.ay, current_segment.az = csa_ax, csa_ay, csa_az
             group.append(current_segment)
@@ -828,3 +925,36 @@ disp = plot_confusion_matrix(Network.regressor, Network.mean_test_matrix.T, labe
 disp.ax_.set_title("Confusion matrix")
 plt.show()
 
+#%% Check how many segments from each axis do we have
+path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+#path = "C:\\Users\\adolf\\TFG\\Output_21052021\\"      
+all_segments = data_manager.load_all_segments(path, 6, 50)
+
+num_x, num_y, num_z, num_xy, num_xz, num_yz, num_xyz = 0, 0, 0, 0, 0, 0, 0
+
+for segment in all_segments:
+    if segment.axis == "x":
+        num_x = num_x + 1
+    if segment.axis == "y":
+        num_y = num_y + 1
+    if segment.axis == "z":
+        num_z = num_z + 1
+    if segment.axis == "xy":
+        num_xy = num_xy + 1
+    if segment.axis == "xz":
+        num_xz = num_xz + 1
+    if segment.axis == "yz":
+        num_yz = num_yz + 1
+    if segment.axis == "xyz":
+        num_xyz = num_xyz + 1
+
+data = [num_x, num_y, num_z, num_xy, num_xz, num_yz, num_xyz]
+index = ["x", "y", "z", "xy", "xz", "yz", "xyz"]
+colors = ["firebrick", "orangered", "tomato", "salmon", "coral", "lightsalmon", "peachpuff"]
+
+fig, ax = plt.subplots(1,1,figsize = (12,9))
+fig.suptitle("Number of segments for each axis or axis group.")
+ax.bar(index, data, color = colors)
+ax.set_ylabel("Number of segments")
+ax.set_xlabel("Axis")
+plt.show()
