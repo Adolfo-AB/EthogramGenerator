@@ -39,8 +39,7 @@ filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
 ### Detect events for a given datasets
 for filename in filenames:
     
-    path ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'
-    #path = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
+    path = ""
     
     # Load data and filter acceleration signals with a butterworth filter
     initial_data = data_manager.load_data(filename, path)
@@ -115,8 +114,7 @@ for filename in filenames:
         segment.id = current_segments.index(segment)
     
     ### Export segments from filename to CSV
-    export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021_2\\"
-    #export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
+    export_path = ""
     data_manager.export_segments(current_segments, sigma, w, filename, export_path)
     print("Segments successfully exported to .csv.")
     print("")
@@ -202,8 +200,7 @@ for segment in all_segments:
     i = i+1
 
 ### Export all segments to CSV
-export_path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021_2\\"
-#export_path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
+export_path = ""
 
 data_manager.export_all_segments(all_segments, sigma, w, export_path)
 print("All segments successfully exported to .csv.")
@@ -384,8 +381,7 @@ maxcorr_ay, lag_ay = segment_manager.compute_max_corr(segments_ay)
 maxcorr_az, lag_az = segment_manager.compute_max_corr(segments_az)
 
 ### Save correlation and lag into numpy format
-#path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
+path = ""
 np.save(os.path.join(path, 'maxcorr_ax.npy'), maxcorr_ax)
 np.save(os.path.join(path, 'maxcorr_ay.npy'), maxcorr_ay)
 np.save(os.path.join(path, 'maxcorr_az.npy'), maxcorr_az)
@@ -423,8 +419,7 @@ filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
 
 all_data = []
 for filename in filenames:
-    datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
-    #datapath = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'    
+    datapath =''+filename+'\\'   
     # Load data and filter acceleration signals with a butterworth filter
     data = data_manager.load_data(filename, datapath)
     data.filter_accelerations(4, 0.4)
@@ -432,8 +427,7 @@ for filename in filenames:
     print("Data loaded: "+filename)
 
 ### Load previously created segments
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
-#path = "C:\\Users\\adolf\\TFG\\Output_21052021\\"      
+path = ""
 all_segments = data_manager.load_all_segments(path, sigma, w)
 for data in all_data:
         for segment in all_segments:
@@ -484,15 +478,14 @@ filenames = ['7501394_PHAAET_rec16112018_PRincon_S1',
 
 all_data = []
 for filename in filenames:
-    datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
-    #datapath = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'    
+    datapath =''+filename+'\\'   
     # Load data and filter acceleration signals with a butterworth filter
     data = data_manager.load_data(filename, datapath)
     data.filter_accelerations(4, 0.4)
     all_data.append(data)
     print("Data loaded: "+filename)
 
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021\\"
+path = ""
 np.save(os.path.join(path, 'all_data.npy'), all_data)
 
 #%% Cell 6: Group segments based on max correlation, remove groups smaller than a threshold
@@ -519,11 +512,11 @@ groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, 
 '''
 
 segment_manager = segment_manager.segment_manager(4, 50)
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021_2\\"
+path = ""
 all_data = np.load(path+"all_data.npy", allow_pickle = True)
 lag_ax = np.load(path+"lag_ax.npy")
 
-path2 = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021_2\\"
+path2 = ""
 groups_raw = np.load(path2+"groups_raw.npy", allow_pickle = True)
     
 '''
@@ -588,9 +581,9 @@ groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, 
 '''
 
 segment_manager = segment_manager.segment_manager(4, 50)
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
+path = ""
 
-path2 = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
+path2 = ""
 groups_raw = np.load(path2+"groups_raw.npy", allow_pickle = True)
     
 
@@ -926,8 +919,7 @@ disp.ax_.set_title("Confusion matrix")
 plt.show()
 
 #%% Check how many segments from each axis do we have
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_17052021\\"
-#path = "C:\\Users\\adolf\\TFG\\Output_21052021\\"      
+path = ""
 all_segments = data_manager.load_all_segments(path, 6, 50)
 
 num_x, num_y, num_z, num_xy, num_xz, num_yz, num_xyz = 0, 0, 0, 0, 0, 0, 0

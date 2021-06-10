@@ -74,8 +74,7 @@ if __name__ == "__main__":
     
     all_data = []
     for filename in filenames:
-        datapath ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'   
-        #datapath = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
+        datapath =''+filename+'\\'   
         # Load data and filter acceleration signals with a butterworth filter
         #data = data_manager.load(filename, datapath)
         data = data_manager.load_data_gps(filename, datapath)
@@ -84,9 +83,8 @@ if __name__ == "__main__":
         print("Data loaded: "+filename)
     
     ### Load previously created acceleration segments
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_3\\"
-    #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"
-    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_03062021_2\\"
+    path = ""
+
     
 
     #all_segments = data_manager.load_all_segments(path, sigma, w)

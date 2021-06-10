@@ -52,11 +52,8 @@ if __name__ == "__main__":
     data_manager = data_manager.data_manager()
     
     ### Load previously created acceleration segments
-    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_21052021\\"
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
-    #path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_Grouping2\\"
+    path = ""
     
-    #path = "C:\\Users\\adolf\\TFG\\Output_17052021\\"    
     #all_segments = data_manager.load_all_segments(path, sigma, w)
     all_segments = list(np.load(path+"allsegments_gps.npy", allow_pickle = True))
     #all_segments = list(np.load(path+"allsegments_23axis.npy", allow_pickle = True))
@@ -76,7 +73,7 @@ if __name__ == "__main__":
     groups_raw = group_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
     
     print("Number of raw groups: "+str(len(groups_raw)))
-    path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
+    path = ""
     np.save(os.path.join(path, 'groups_raw.npy'), groups_raw)
     
     finish_time = time.time()

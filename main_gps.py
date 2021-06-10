@@ -28,8 +28,7 @@ filenames = ['8201959_PHAAET_rec29122020_ICima_ninho 31_36_S1']
 ### Detect events for a given datasets
 for filename in filenames:
     
-    path ='D:\\AdolfoAB\\cobas_infinity_3.02\\Rabijunco\\'+filename+'\\'
-    #path = 'C:\\Users\\adolf\\Documents\\Adolfo\\TFG\\Data\\Accelerometria\\Rabijunco\\'+filename+'\\'
+    path =''+filename+'\\'
     
     # Load data and filter acceleration signals with a butterworth filter
     initial_data = data_manager.load_data_gps_timestamp(filename, path)
@@ -118,7 +117,7 @@ for segment in output_segments:
     segment.id = i
     i += 1
     
-path_gps = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_4\\"
+path_gps = ""
 np.save(os.path.join(path_gps, 'allsegments_gps.npy'), output_segments)
 np.save(os.path.join(path_gps, 'alldata_gps.npy'), all_data)        
 
@@ -320,7 +319,7 @@ input_segments = copy.copy(all_segments)
 groups_raw = segment_manager.group_similar_segments(input_segments, maxcorr_ax, maxcorr_ay, maxcorr_az, threshold_ax, threshold_ay, threshold_az)
 '''
 segment_manager = segment_manager.segment_manager(8, 50)
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
+path = ""
 all_data = np.load(path+"alldata_gps.npy", allow_pickle = True)
 lag_ax = np.load(path+"lag_ax.npy")
 
@@ -430,7 +429,7 @@ start_time = time.time()
 
 data_manager = data_manager.data_manager()
 
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
+path = ""
 all_data = np.load(path+"alldata_gps.npy", allow_pickle = True)
 all_data[0].longitude, all_data[0].latitude = data_manager.interpolate_gps_data(all_data[0])
 
@@ -550,7 +549,7 @@ start_time = time.time()
 
 data_manager = data_manager.data_manager()
 
-path = "D:\\AdolfoAB\\cobas_infinity_3.02\\Output_GPS_2\\"
+path = ""
 all_data = np.load(path+"alldata_gps.npy", allow_pickle = True)
 all_data[0].longitude, all_data[0].latitude = data_manager.interpolate_gps_data(all_data[0])
 
